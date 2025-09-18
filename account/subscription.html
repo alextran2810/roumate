@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subscription | Algotic Statistics</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url("../background.jpg") no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: #ecf1ff;
+    }
+    .app-header, .app-footer { text-align: center; padding: 1rem; }
+    .app-header h1 { color: #7aa2ff; margin: 0; }
+    .tagline { color: #9fb0d0; font-size: 0.9rem; }
+    .content-box {
+      background: rgba(18, 26, 49, 0.6);
+      backdrop-filter: blur(8px);
+      padding: 2rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      margin: auto;
+      text-align: center;
+    }
+    h2 { color: #7aa2ff; }
+    ul { text-align: left; margin-top: 1rem; }
+    button {
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      background: #7aa2ff;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover { background: #5c87e6; }
+    .warning {
+      background: #ff6b6b;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <h1>Algotic Statistics</h1>
+    <p class="tagline">Master The Odds</p>
+  </header>
+
+<main>
+  <div class="content-box">
+    <h2>Your Subscription</h2>
+    <p><strong>Current Plan:</strong> <span id="current-plan">Loading...</span></p>
+    <div id="plan-benefits"></div>
+    
+    <!-- Always show registered device -->
+    <p id="device-info"><strong>Registered Device:</strong> Loading...</p>
+
+    <div id="device-warning" class="warning" style="display:none;">
+      ⚠️ This subscription is not valid on this device. Please upgrade or transfer your subscription.
+    </div>
+    <button onclick="upgradePlan()">Upgrade to Pro</button>
+    <button onclick="goBack()">⬅ Back to Account</button>
+  </div>
+</main>
+
+
+  <footer class="app-footer">
+    <p>
+      <a href="contact.html">Contact Us</a> | 
+      <a href="terms.html">Terms & Conditions</a> | 
+      <a href="privacy.html">Privacy Policy</a>
+    </p>
+    <p>© 2025 Algotic LLC</p>
+  </footer>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://eqblphvyqfibxhrtniwq.supabase.co";
+
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxYmxwaHZ5cWZpYnhocnRuaXdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4MzcwOTUsImV4cCI6MjA3MzQxMzA5NX0.QaTyuEstLGI3ISGli9ykWwmowSDKCXjiHn6xOf1oKEw";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true }
+    });
+// Friendly device info generator
+// Always compute friendly device tag
+function getDeviceInfo() {
+  const ua = navigator.userAgent;
+  const platform = navigator.platform;
+
+  let os = "Unknown OS";
+  if (/Win/.test(platform)) os = "Windows";
+  else if (/Mac/.test(platform)) os = "MacOS";
+  else if (/Linux/.test(platform)) os = "Linux";
+  else if (/iPhone|iPad|iPod/.test(ua)) os = "iOS";
+  else if (/Android/.test(ua)) os = "Android";
+
+  let browser = "Unknown Browser";
+  if (/Chrome/.test(ua)) browser = "Chrome";
+  else if (/Safari/.test(ua) && !/Chrome/.test(ua)) browser = "Safari";
+  else if (/Firefox/.test(ua)) browser = "Firefox";
+  else if (/Edge/.test(ua)) browser = "Edge";
+
+  let uniqueId = localStorage.getItem("device_uuid");
+  if (!uniqueId) {
+    uniqueId = crypto.randomUUID();
+    localStorage.setItem("device_uuid", uniqueId);
+  }
+
+  return `${os} ${browser} (${uniqueId.slice(0, 8)})`;
+}
+async function loadPlan() {
+  const { data: userData } = await supabaseClient.auth.getUser();
+  if (!userData?.user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const { data: sub } = await supabaseClient
+    .from("subscriptions")
+    .select("plan, status, device_id, end_date, start_date")
+    .eq("user_id", userData.user.id)
+    .order("start_date", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const plan = sub?.plan || "free";
+  document.getElementById("current-plan").innerText = plan.toUpperCase();
+
+  const benefits = {
+    free: [
+      "Track American & European Roulette",
+      "Basic statistics dashboard",
+      "Secure login"
+    ],
+    pro: [
+      "All Free features",
+      "Unlimited spin tracking",
+      "Advanced analytics & charts",
+      "Priority support"
+    ]
+  };
+
+  document.getElementById("plan-benefits").innerHTML =
+    "<h3>Benefits:</h3><ul>" +
+    (benefits[plan] || []).map(b => `<li>${b}</li>`).join("") +
+    "</ul>";
+
+  // Always show a device tag (registered or fallback)
+  const currentDevice = getDeviceInfo();
+  const registeredDevice = sub?.device_id || currentDevice;
+  document.getElementById("device-info").innerHTML =
+    `<strong>Registered Device:</strong> ${registeredDevice}`;
+
+  // Validation for paid plans
+  if (sub && sub.device_id && sub.plan !== "free" && sub.device_id !== currentDevice) {
+    document.getElementById("device-warning").style.display = "block";
+  }
+}
+    async function upgradePlan() {
+  const { data: userData } = await supabaseClient.auth.getUser();
+  if (!userData?.user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const deviceInfo = getDeviceInfo();
+
+  // Call your backend function to create Stripe Checkout session
+  const response = await fetch("/create-checkout-session", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      userId: userData.user.id,
+      deviceId: deviceInfo,
+      priceId: "price_xxx_from_stripe" // replace with your Pro plan price ID
+    })
+  });
+
+  const { url } = await response.json();
+  window.location.href = url; // Redirect user to Stripe Checkout
+}
+
+
+    function goBack() {
+      window.location.href = "account.html";
+    }
+
+    loadPlan();
+  </script>
+</body>
+</html>

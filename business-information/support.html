@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support | Algotic Statistics</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url("background.jpg") no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: #ecf1ff;
+    }
+    .app-header, .app-footer { text-align: center; padding: 1rem; }
+    .app-header h1 { color: #7aa2ff; margin: 0; }
+    .tagline { color: #9fb0d0; font-size: 0.9rem; }
+    .app-footer { font-size: 0.8rem; color: #9fb0d0; }
+    .app-footer a { color: #7aa2ff; text-decoration: none; }
+
+    .content-box {
+      background: rgba(18, 26, 49, 0.6);
+      backdrop-filter: blur(8px);
+      padding: 2rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      margin: auto;
+      text-align: left;
+    }
+    h2 { color: #7aa2ff; text-align: center; }
+    ul { margin-left: 1.5rem; }
+    button {
+      display: block;
+      margin: 2rem auto 0;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      background: #7aa2ff;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover { background: #5c87e6; }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <h1>Algotic Statistics</h1>
+    <p class="tagline">Master The Odds</p>
+  </header>
+
+  <main>
+    <div class="content-box">
+      <h2>Support & Help</h2>
+
+      <h3>Frequently Asked Questions</h3>
+      <ul>
+        <li><strong>How do I reset my password?</strong>  
+          Use the “Forgot Password” link on the login page and check your email.</li>
+        <li><strong>How do I update my account info?</strong>  
+          Go to Account from the Dashboard and edit your first/last name.</li>
+        <li><strong>What’s included in the Free Plan?</strong>  
+          Tracking for American & European Roulette, Baccarat stats, and secure login.</li>
+        <li><strong>How do I contact support?</strong>  
+          Email us at <a href="mailto:support@yourcompany.com">support@yourcompany.com</a>.</li>
+      </ul>
+
+      <button onclick="goBack()">⬅ Back to Dashboard</button>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <p>
+      <a href="contact.html">Contact Us</a> | 
+      <a href="terms.html">Terms & Conditions</a> | 
+      <a href="privacy.html">Privacy Policy</a>
+    </p>
+    <p>© 2025 Algotic Statistics</p>
+  </footer>
+
+  <script>
+    function goBack() {
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>

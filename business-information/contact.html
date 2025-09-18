@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b1020;
+      color: #ecf1ff;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+    h1 { color: #7aa2ff; }
+    label { display: block; margin: 1rem 0 0.5rem; }
+    input, textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      background: rgba(42, 53, 87, 0.6);
+      color: #ecf1ff;
+    }
+    textarea { resize: vertical; min-height: 100px; }
+    button {
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      background: #7aa2ff;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    a { color: #39d98a; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #9fb0d0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Contact Us</h1>
+  <p>If you have questions or need support, please use the form below or email us directly at 
+     <a href="mailto:support@yourcompany.com">support@yourcompany.com</a>.
+  </p>
+
+  <form onsubmit="handleSubmit(event)">
+    <label for="name">Your Name</label>
+    <input type="text" id="name" required />
+
+    <label for="email">Your Email</label>
+    <input type="email" id="email" required />
+
+    <label for="message">Message</label>
+    <textarea id="message" required></textarea>
+
+    <button type="submit">Send</button>
+  </form>
+
+  <div class="footer">
+    <p><a href="login.html">← Back to Login</a></p>
+  </div>
+
+  <script>
+    function handleSubmit(e) {
+      e.preventDefault();
+      alert("📧 Message sent! (For now, this form is a placeholder.)");
+      // In the future: integrate with Supabase Functions, SendGrid, or an email API
+    }
+  </script>
+</body>
+</html>

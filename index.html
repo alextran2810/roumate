@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roulette Stats | Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url("background.jpg") no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: #ecf1ff;
+      overflow: hidden;
+    }
+
+    /* Header */
+    .app-header {
+      text-align: center;
+      padding: 1rem;
+      color: #ecf1ff;
+    }
+    .app-header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: #7aa2ff;
+    }
+    .app-header .tagline {
+      font-size: 0.9rem;
+      color: #9fb0d0;
+    }
+
+    /* Loader */
+    .spinner {
+      border: 4px solid rgba(255,255,255,0.2);
+      border-top: 4px solid #7aa2ff;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin: auto;
+    }
+    .loading-screen {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Main content box */
+    .content-box {
+      background: rgba(18, 26, 49, 0.6);
+      backdrop-filter: blur(8px);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      width: 90%;
+      max-width: 400px;
+      margin: auto;
+      text-align: center;
+      display: none; /* hidden until auth passes */
+    }
+    .content-box h2 {
+      color: #7aa2ff;
+      margin-bottom: 1rem;
+    }
+    #logout-btn {
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      background: #ff6b6b;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    /* Footer */
+    .app-footer {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #9fb0d0;
+      padding: 0.5rem;
+    }
+    .app-footer a {
+      color: #7aa2ff;
+      text-decoration: none;
+    }
+    .app-footer a:hover { text-decoration: underline; }
+    .menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.menu-buttons button {
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background: #7aa2ff;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.menu-buttons button:hover {
+  background: #5c87e6;
+}
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <h1>Algotic Statistics</h1>
+    <p class="tagline">Master The Odds</p>
+  </header>
+
+  <!-- Loader -->
+  <div id="loading" class="loading-screen">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Main Content -->
+  <main>
+
+<div class="content-box" id="dashboard">
+  <h2 id="welcome-text">Loading...</h2>
+<div class="menu-buttons">
+  <button onclick="goAccount()">👤 Account</button>
+  <button onclick="goAmerican()">🎰 American Roulette</button>
+  <button onclick="goEuropean()">🎡 European Roulette</button>
+  <button onclick="goBaccarat()">🎴 Baccarat</button>
+  <button onclick="goSupport()">❓ Support</button>
+  <button id="logout-btn">🚪 Logout</button>
+</div>
+</div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <p>
+      <a href="business-information/contact.html">Contact Us</a> | 
+      <a href="business-information/terms.html">Terms & Conditions</a> | 
+      <a href="business-information/privacy.html">Privacy Policy</a>
+    </p>
+<p>© 2025 Algotic LLC</p>
+  </footer>
+
+  <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://eqblphvyqfibxhrtniwq.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxYmxwaHZ5cWZpYnhocnRuaXdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4MzcwOTUsImV4cCI6MjA3MzQxMzA5NX0.QaTyuEstLGI3ISGli9ykWwmowSDKCXjiHn6xOf1oKEw";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true }
+    });
+function goAccount() {
+  window.location.href = "account/user.html";
+}
+
+
+function goAmerican() {
+  //window.location.href = "american-roulette/index.html";
+    window.location.href = "roulette/american.html";
+
+}
+
+function goEuropean() {
+  window.location.href = "european-roulette/index.html";
+}
+
+function goBaccarat() {
+   window.location.href = "baccarat/baccarat.html";
+}
+
+function goSupport() {
+  window.location.href = "support.html";
+}
+
+    async function checkAuth() {
+      try {
+        const { data: sessionData } = await supabaseClient.auth.getSession();
+        if (!sessionData.session) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        const { data: userData, error: userError } = await supabaseClient.auth.getUser();
+        if (userError || !userData.user) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        const userId = userData.user.id;
+
+        // Fetch profile
+        let { data: profile, error: profileError } = await supabaseClient
+          .from("profiles")
+          .select("first_name, last_name")
+          .eq("id", userId)
+          .single();
+
+        // Auto-create if missing
+        if (!profile) {
+          const { error: insertError } = await supabaseClient
+            .from("profiles")
+            .insert([{ id: userId, first_name: "New", last_name: "User" }]);
+          if (!insertError) {
+            profile = { first_name: "New", last_name: "User" };
+          }
+        }
+
+        // Show greeting
+        let welcomeMsg = "Welcome, " + userData.user.email;
+        if (profile && profile.first_name) {
+          welcomeMsg = `Welcome, ${profile.first_name} ${profile.last_name ?? ""}`;
+        }
+        document.getElementById("welcome-text").innerText = welcomeMsg;
+
+        // Show dashboard, hide loader
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+
+      } catch (err) {
+        console.error("Auth check failed:", err);
+        window.location.href = "login.html";
+      }
+    }
+
+    checkAuth();
+
+    document.getElementById("logout-btn").addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
+      window.location.href = "login.html";
+    });
+  </script>
+</body>
+</html>

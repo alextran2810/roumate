@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Reset Password</title>
+</head>
+<body>
+  <h2>Set New Password</h2>
+  <input type="password" id="new-password" placeholder="New password" />
+  <button id="reset-btn">Update Password</button>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.44.4/dist/umd/supabase-js.js"></script>
+  <script>
+    const SUPABASE_URL = "https://eqblphvyqfibxhrtniwq.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxYmxwaHZ5cWZpYnhocnRuaXdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4MzcwOTUsImV4cCI6MjA3MzQxMzA5NX0.QaTyuEstLGI3ISGli9ykWwmowSDKCXjiHn6xOf1oKEw";
+    
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    document.getElementById("reset-btn").addEventListener("click", async () => {
+      const newPassword = document.getElementById("new-password").value.trim();
+      if (!newPassword || newPassword.length < 6) {
+        alert("⚠️ Password must be at least 6 characters.");
+        return;
+      }
+
+      const { data, error } = await supabaseClient.auth.updateUser({ password: newPassword });
+      if (error) {
+        alert("❌ Failed to update password: " + error.message);
+      } else {
+        alert("✅ Password updated! Please log in with your new password.");
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+</body>
+</html>

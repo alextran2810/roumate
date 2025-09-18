@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>European Roulette</title>
+  <link rel="stylesheet" href="roulette.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="roulette-storage.js"></script> 
+
+  <script src="roulette-template.js"></script>
+</head>
+<body>
+  <div class="top-section">
+    <h1>European Roulette</h1>
+    <div class="main-center">
+      <div class="history-container">
+        <div class="history-log empty" id="historyLog"></div>
+      </div>
+
+      <div class="numpad-and-buttons">
+        <div class="numpad-container" id="numpad"></div>
+      </div>
+
+      <div class="stats-header">
+        <h3>Statistics (last <span id="sliderValue">0</span> out of <span class="totalCount">0</span> total)</h3>
+        <input type="range" id="rangeSlider" min="0" value="0" />
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-section">
+    <div class="stats">
+      <div class="bar-container" id="colBar"></div>
+      <div class="bar-container" id="dozenBar"></div>
+
+      <div class="chart-block">
+        <div class="bar-container" id="halfBar"></div>
+        <canvas id="halfChart" width="400" height="200"></canvas>
+      </div>
+
+      <div class="chart-block">
+        <div class="bar-container" id="colorBar"></div>
+        <canvas id="colorChart" width="400" height="200"></canvas>
+      </div>
+
+      <div class="chart-block">
+        <div class="bar-container" id="parityBar"></div>
+        <canvas id="parityChart" width="400" height="200"></canvas>
+      </div>
+    </div>
+
+    <div class="more-section">
+      <h3>Number Frequency Heatmap</h3>
+      <div class="number-grid" id="plainGrid"></div>
+
+      <div class="chart-block">
+        <canvas id="freqChart" width="400" height="200"></canvas>
+
+        <div class="separator"></div>
+
+        <table class="combo-table">
+          <thead>
+            <tr>
+              <th>Combination</th>
+              <th>Spins Ago</th>
+            </tr>
+          </thead>
+          <tbody id="comboBody"></tbody>
+        </table>
+      </div>
+<h3>Longest & Current Streaks</h3>
+<table class="streak-table">
+  <thead>
+    <tr>
+      <th>Group</th>
+      <th>Longest Streak</th>
+      <th>Current Streak</th>
+    </tr>
+  </thead>
+  <tbody id="streakBody"></tbody>
+</table>
+
+    </div>
+  </div>
+
+  <!-- Fixed footer buttons -->
+  <div class="special-buttons">
+    <button class="btn-reset" onclick="resetAll()">Reset</button>
+    <button class="btn-view" onclick="toggleView()">🔄 Keypad</button>
+    <button class="btn-voice" onclick="toggleListening()">Voice Input</button>
+    <button class="btn-test" onclick="openTestDialog()">▶Run Test</button>
+  </div>
+
+  <!-- Test dialog -->
+  <div id="testDialog" class="dialog-overlay" style="display:none;">
+    <div class="dialog-content">
+      <h3>Run Test Simulation</h3>
+      <p>Enter how many random spins to simulate:</p>
+
+      <input id="testCount" type="number" min="1" step="1" placeholder="e.g. 100"
+             style="width:90%; padding:6px;"
+             oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+
+      <div style="margin-top:10px;">Choose speed:</div>
+      <select id="speedSelect" style="width:90%; padding:6px; margin:8px 0;">
+        <option value="fast">⚡ Faster</option>
+        <option value="regular" selected>⏱ Regular</option>
+        <option value="slow">🐢 Slower</option>
+      </select>
+
+      <div class="dialog-actions" style="margin-top:10px; text-align:right;">
+        <button onclick="startTest()">Start</button>
+        <button onclick="closeTestDialog()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Language dialog -->
+  <div id="langDialog" class="dialog-overlay" style="display:none;">
+    <div class="dialog-content">
+      <h3>Select Language</h3>
+      <select id="langSelect">
+        <option value="en-US">English (US)</option>
+        <option value="vi-VN">Vietnamese</option>
+        <option value="es-ES">Spanish</option>
+        <option value="fr-FR">French</option>
+        <option value="de-DE">German</option>
+        <option value="zh-CN">Chinese (Mandarin)</option>
+        <option value="ja-JP">Japanese</option>
+        <option value="ko-KR">Korean</option>
+      </select>
+      <div class="dialog-actions" style="margin-top:10px; text-align:right;">
+        <button onclick="confirmLanguage()">OK</button>
+        <button onclick="closeLangDialog()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      initRoulette({ hasDoubleZero: false, title: "European Roulette" });
+    });
+  </script>
+</body>
+</html>

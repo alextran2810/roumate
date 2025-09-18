@@ -1,0 +1,536 @@
+:root {
+  --bg: #f5f5f5;
+  --ink: #333;
+  --card: #fff;
+  --border: #ccc;
+
+  /* One content lane to rule them all (match your bars/charts) */
+  --lane: 500px;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; height: 100%; }
+
+body {
+  font-family: Arial, sans-serif;
+  padding: 10px;
+  width: 100vw;
+  max-width: 100vw;
+  background: url("background.webp") no-repeat center center fixed;
+  background-size: cover;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Top / Scroll Sections ---------- */
+.top-section {
+  flex: 0 0 auto;
+  position: sticky;
+  top: 0;
+  background: #f5f5f5;
+  z-index: 10;
+  padding: 8px 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.scroll-section {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 8px 10px;
+  padding-bottom: 70px; /* room for fixed buttons */
+}
+
+/* ---------- Headings ---------- */
+h1 {
+  font-size: 24px;
+  text-align: center;
+  margin: 10px 0 14px;
+  font-weight: bold;
+  color: #222;
+}
+
+.more-section h3 {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 0 0 12px;
+  color: black;
+  margin-top: 25x;
+}
+
+/* ---------- Center Column ---------- */
+.main-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  max-width: 100vw;
+}
+
+/* ---------- History ---------- */
+.history-container { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+
+.history-log {
+  display: flex;
+  overflow-x: auto;
+  gap: 6px;
+  background: lightgrey;
+  padding: 6px;
+  border: 3px solid black;
+  border-radius: 8px;
+  min-height: 32px;
+  width: 100%;
+  max-width: var(--lane);
+  margin: 0 auto;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+.history-log.empty::before {
+  content: "Start entering numbers to see history";
+  color: #aaa;
+  font-size: 13px;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+.history-log div {
+  padding: 6px 10px;
+
+  margin: 3px;
+  border-radius: 0;
+  font-weight: bold;
+  font-size: 13px;
+  color: #fff;
+  flex: 0 0 auto;
+  min-width: 32px;
+  text-align: center;
+  border: none;
+  cursor: pointer; /* last chip is removable; cursor indicates interactivity */
+}
+
+/* ---------- Numpad ---------- */
+.numpad-and-buttons { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+
+.numpad-container {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  max-width: var(--lane);
+  margin: 0 auto;
+  grid-template-columns: repeat(13, 1fr);
+  background: transparent;
+}
+.numpad-container button {
+  padding: 6px 0;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 3px;
+  font-weight: bold;
+  color: #fff;
+  border: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- Stats Header ---------- */
+.stats-header {
+  display: grid;
+  grid-template-columns: 1fr auto; /* title grows, slider stays compact */
+  align-items: center;
+  gap: 10px;  align-items: center;
+  flex-wrap: nowrap;
+  width: 100%;
+  max-width: var(--lane);
+  margin: 0 auto;
+}
+.stats-header h3 {
+  font-weight: bold;
+  margin: 0;
+  line-height: 1.2;
+white-space: nowrap;   /* single line */
+  overflow: hidden;      /* hide any accidental overflow */
+  text-overflow: ellipsis;
+  font-size: 14px;       /* max size; JS will shrink */
+}
+#rangeSlider { width: 100px; flex: 0 0 auto; vertical-align: middle; }
+
+/* ---------- Stats & Bars ---------- */
+.stats {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  max-width: var(--lane);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.bar-container {
+  background: transparent ;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  width: 100%;
+  height: 24px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  border:none;  
+  gap: 0;  
+}
+.bar-container:hover { opacity: 0.85; }
+
+.bar-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: white;
+  height: 100%;
+  white-space: nowrap;
+  padding: 0 6px;
+  box-sizing: border-box;
+  
+}
+
+/* ---------- Charts ---------- */
+canvas {
+  margin-top: 30px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100% !important;
+  max-width: var(--lane);
+  height: auto !important;
+  border-radius: 6px;
+}
+
+/* ---------- More Section ---------- */
+.more-section {
+  margin-top: 15px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  text-align: center;
+}
+/* Cap & center all blocks here too */
+.more-section > h3,
+.more-section > .chart-block,
+.number-grid,
+.combo-table {
+  width: 100%;
+  max-width: var(--lane);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.separator { height: 14px; }
+
+.number-grid {
+  display: grid;
+  grid-template-columns: repeat(13, minmax(20px, 1fr));
+  gap: 4px;
+  justify-content: center;
+  margin-bottom: 10px;
+  grid-auto-flow:dense;
+}
+.number-item {
+  text-align: center;
+  font-weight: bold;
+  border-radius: 3px;
+  padding: 3px;
+  font-size: 11px;
+  border: 1px solid black;
+  color: black;
+}
+
+/* Combo table tweaks: lighter header, smaller text, skinny 2nd column */
+.combo-table {
+  table-layout: auto;         /* let browser size columns naturally */
+  background: white;
+}
+
+.combo-table th {
+  background: black;        /* light bg so black text is readable */
+  color: white;                 /* black header text */
+  font-size: 13px;             /* smaller header text */
+  padding: 6px 8px;
+}
+
+.combo-table td {
+  font-size: 12px;             /* slightly smaller body text */
+  padding: 4px 8px;
+}
+
+/* Make the "Spins Ago" column auto-shrink to its content */
+.combo-table th:nth-child(2),
+.combo-table td:nth-child(2) {
+  width: 1%;                   /* hint: as small as possible */
+  white-space: nowrap;         /* prevent wrapping so it stays narrow */
+  text-align: middle;           /* nicer for numbers */
+}
+
+
+/* ---------- Shared chrome ---------- */
+.bar-container, canvas {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* ---------- Fixed Footer Buttons ---------- */
+.special-buttons {
+  position: fixed;
+  bottom: 0; left: 0; width: 100%;
+  background: rgba(245, 245, 245, 0.95);
+  backdrop-filter: blur(6px);
+  border-top: 1px solid #ccc;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  z-index: 100;
+  box-sizing: border-box;
+}
+.special-buttons button {
+  flex: 0 1 auto; /* shrink to content but allow slight grow if needed */
+  min-width: 72px;
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-reset { background: #50E3C2; color: black; }
+.btn-view  { background: #50E3C2; color: black; }
+.btn-voice { background: #50E3C2; color: black; }
+.btn-voice.active { background: #50E3C2; color: white; }
+.btn-test { background: #50E3C2; color: black; font-weight: bold; }
+.btn-test.stop { background: red !important; color: white !important; }
+
+/* Make Reset & Run Test a bit smaller than others */
+.btn-reset, .btn-test { padding: 5px 8px; min-width: 66px; }
+
+/* ---------- Dialogs ---------- */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center; /* vertical center */
+  justify-content: center; /* horizontal center */
+  z-index: 1000;
+}
+.dialog-content {
+  background: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  max-height: 90vh;
+  overflow-y: auto;
+  width: 95vw;
+  max-width: 560px;
+  position: relative;
+}
+.dialog-content h3 {
+  margin: 6px 0 10px;
+  text-align: center;
+  font-size: 16px;
+}
+.dialog-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 8px 0 4px;
+}
+.dialog-actions button, #langDialog button {
+  padding: 6px 10px;
+  border-radius: 4px;.
+  border: 1px solid #ddd;
+  background: #fafafa;
+  cursor: pointer;
+}
+
+/* Lang dialog tweaks */
+#langDialog .dialog-content { max-width: 300px; text-align: center; }
+#langDialog select { width: 90%; padding: 6px; margin-top: 10px; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px) {
+  .numpad-container { grid-template-columns: repeat(13, 1fr); }
+  .number-grid { grid-template-columns: repeat(13, minmax(14px, 1fr)); }
+  
+}
+/* Keep title + slider on one line, shrink title on small screens */
+@media (max-width: 480px) {
+  .stats-header {
+    /* two columns: title grows, slider hugs content */
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) max-content;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .stats-header h3 {
+    font-size: clamp(11px, 3.6vw, 14px); /* auto scales down on small screens */
+    white-space: nowrap;                  /* stay on one line */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+  }
+
+  /* let the slider fit without forcing a wrap */
+  #rangeSlider {
+    width: clamp(90px, 34vw, 150px);
+    min-width: 0;
+    flex: 0 0 auto;
+  }
+}
+
+
+/* --- Heatmap flash effect --- */
+@keyframes heatFlash {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0.9); transform: scale(1); }
+  50%  { box-shadow: 0 0 0 6px rgba(255, 204, 0, 0.35); transform: scale(1.06); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0); transform: scale(1); }
+}
+.number-item.flash {
+  animation: heatFlash 1s ease-out;
+  outline: 2px solid #ffcc00;
+  will-change: transform;
+}
+
+/* Hide the spacer cells but keep the grid shape */
+.number-item.empty {
+  visibility: hidden;  /* keeps the place in the grid */
+}
+
+/* Flash the heatmap cell brighter & bolder for ~1s */
+.number-item.flash-hot {
+  animation: heatPulse 1s ease-out;
+  font-weight: 800;                  /* bolder text */
+  border-color: #fff !important;     /* pop the border */
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,0.85), /* crisp white ring */
+    0 0 14px rgba(255,0,0,0.55);      /* soft glow */
+  filter: brightness(1.9) saturate(1.6);
+}
+
+@keyframes heatPulse {
+  0%   { transform: scale(1);    filter: brightness(1)   saturate(1);   }
+  20%  { transform: scale(1.08); filter: brightness(2)   saturate(1.8); }
+  60%  { transform: scale(1.04); filter: brightness(1.6) saturate(1.4); }
+  100% { transform: scale(1);    filter: brightness(1)   saturate(1);   }
+}
+
+
+/* Seamless percentage bars (no white lines) */
+.bar-container{
+  background: transparent !important;
+  border: 0 !important;
+  overflow: hidden;      /* clip edges */
+}
+
+.bar-segment{
+  position: relative;
+  border: 0 !important;  /* no borders on segments */
+}
+
+/* Slight overlap to kill subpixel gaps */
+.bar-segment + .bar-segment{
+  margin-left: -0.5px;   /* bleed over the seam */
+}
+
+/* Extra safety: extend each segment’s color over the joint */
+.bar-segment::after{
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0; right: -0.5px;
+  width: 1px;
+  background: inherit;   /* same color as the segment */
+  pointer-events: none;
+}
+
+/* Match container rounding with the first/last segments */
+.bar-segment:first-child{ border-radius: 4px 0 0 4px; }
+.bar-segment:last-child { border-radius: 0 4px 4px 0; }
+
+/* If you previously added any dividers, kill them */
+.bar-segment{ border-right: none !important; }
+.combo-table tr:nth-child(even) td { background: #fff; }
+.combo-table tr:nth-child(odd)  td { background: #f7f7f7; }
+
+/* --- Streak table: compact layout --- */
+.streak-table {
+  width: 100%;
+  max-width: var(--lane);
+  border-collapse: collapse;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: 13px;              /* smaller overall text */
+  line-height: 1.15;            /* tighter line height */
+}
+
+.streak-table th{
+  padding: 4px 6px;             /* tighter row height */
+  border-bottom: 1px solid #eee;
+  background-color: #111;
+}
+
+.streak-table td {
+  padding: 4px 6px;             /* tighter row height */
+  border-bottom: 1px solid #eee;
+}
+
+.streak-table th {
+  background: black;        /* light bg so black text is readable */
+  color: white;                 /* black header text */
+  font-size: 13px;             /* smaller header text */
+  padding: 6px 8px;
+}
+.streak-table tr:nth-child(even) td { background: #fff; }
+.streak-table tr:nth-child(odd)  td { background: #f7f7f7; }
+/* numeric columns compact + centered */
+.streak-table th:nth-child(2),
+.streak-table td:nth-child(2),
+.streak-table th:nth-child(3),
+.streak-table td:nth-child(3) {
+  width: 1%;
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* last row border cleanup */
+.streak-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Extra compact on very small screens */
+@media (max-width: 480px) {
+  .streak-table { font-size: 11px; }
+  .streak-table thead th { font-size: 10.5px; }
+  .streak-table th, .streak-table td { padding: 3px 5px; }
+}
+
+
+/* Space between Combination table and "Longest Streak" title */
+.combo-table {
+  margin: 6px auto 18px;   /* bottom gap after the combo table */
+}
+
+/* If the very next element is the Streak title (an h3), add a little extra top space */
+.combo-table + h3 {
+  margin-top: 10px;        /* gentle top margin for the title */
+}

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account | Algotic Statistics</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url("../background.jpg") no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: #ecf1ff;
+    }
+    .app-header, .app-footer { text-align: center; padding: 1rem; }
+    .app-header h1 { color: #7aa2ff; margin: 0; }
+    .tagline { color: #9fb0d0; font-size: 0.9rem; }
+    .app-footer { font-size: 0.8rem; color: #9fb0d0; }
+    .app-footer a { color: #7aa2ff; text-decoration: none; }
+
+    .content-box {
+      background: rgba(18, 26, 49, 0.6);
+      backdrop-filter: blur(8px);
+      padding: 2rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      margin: auto;
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border: none;
+      border-radius: 6px;
+      background: rgba(42, 53, 87, 0.6);
+      color: #ecf1ff;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 6px;
+      background: #7aa2ff;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    button:hover { background: #5c87e6; }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <h1>Algotic Statistics</h1>
+    <p class="tagline">Master The Odds</p>
+  </header>
+
+  <main>
+    <div class="content-box">
+      <h2>My Account</h2>
+      <input type="text" id="first-name" placeholder="First Name" />
+      <input type="text" id="last-name" placeholder="Last Name" />
+      <button onclick="updateProfile()">Save Changes</button>
+      <button onclick="goSubscription()">View Subscription</button>
+      <button onclick="goBack()">⬅ Back to Dashboard</button>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <p><a href="contact.html">Contact Us</a> | 
+       <a href="terms.html">Terms & Conditions</a> | 
+       <a href="privacy.html">Privacy Policy</a></p>
+    <p>© 2025 Algotic Statistics</p>
+  </footer>
+
+      <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://eqblphvyqfibxhrtniwq.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxYmxwaHZ5cWZpYnhocnRuaXdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4MzcwOTUsImV4cCI6MjA3MzQxMzA5NX0.QaTyuEstLGI3ISGli9ykWwmowSDKCXjiHn6xOf1oKEw";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: true }
+    });
+
+    async function loadProfile() {
+      const { data: userData } = await supabaseClient.auth.getUser();
+      if (!userData.user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const { data: profile } = await supabaseClient
+        .from("profiles")
+        .select("first_name, last_name")
+        .eq("id", userData.user.id)
+        .single();
+
+      if (profile) {
+        document.getElementById("first-name").value = profile.first_name || "";
+        document.getElementById("last-name").value = profile.last_name || "";
+      }
+    }
+
+    async function updateProfile() {
+      const { data: userData } = await supabaseClient.auth.getUser();
+      const firstName = document.getElementById("first-name").value.trim();
+      const lastName = document.getElementById("last-name").value.trim();
+
+      const { error } = await supabaseClient
+        .from("profiles")
+        .update({ first_name: firstName, last_name: lastName })
+        .eq("id", userData.user.id);
+
+      if (error) {
+        alert("❌ Update failed: " + error.message);
+      } else {
+        alert("✅ Profile updated!");
+      }
+    }
+
+    function goSubscription() {
+      window.location.href = "subscription.html";
+    }
+
+    function goBack() {
+      window.location.href = "index.html";
+    }
+
+    loadProfile();
+  </script>
+</body>
+</html>
