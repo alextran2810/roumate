@@ -305,15 +305,15 @@ const gridCellByNum = new Map(); // number -> cell div
     });
 
     fillBar(colBar, [
-      { p: (counts.col1 / t) * 100, color: '#7CB342', label: 'Col1' },
+      { p: (counts.col1 / t) * 100, color: '#16a085', label: 'Col1' },
       { p: (counts.col2 / t) * 100, color: 'purple', label: 'Col2' },
       { p: (counts.col3 / t) * 100, color: '#4A90E2', label: 'Col3' },
       { p: (counts.zero / t) * 100, color: 'green', label: '' }
     ]);
     fillBar(dozenBar, [
-      { p: (counts.doz1 / t) * 100, color: '#999', label: '1st 12' },
+      { p: (counts.doz1 / t) * 100, color: 'black', label: '1st 12' },
       { p: (counts.doz2 / t) * 100, color: '#16a085', label: '2nd 12' },
-      { p: (counts.doz3 / t) * 100, color: 'black', label: '3rd 12' },
+      { p: (counts.doz3 / t) * 100, color: 'red', label: '3rd 12' },
       { p: (counts.zero / t) * 100, color: 'green', label: '' }
     ]);
     fillBar(halfBar, [
@@ -321,6 +321,16 @@ const gridCellByNum = new Map(); // number -> cell div
       { p: (counts.high / t) * 100, color: 'orange', label: 'High' },
       { p: (counts.zero / t) * 100, color: 'green', label: ' ' }
     ]);
+
+// Sync CSS variable --low-color to header/footer based on Low segment color
+try {
+  const lowSeg = halfBar && halfBar.querySelector('.bar-segment');
+  if (lowSeg) {
+    const lowCol = lowSeg.style.background || getComputedStyle(lowSeg).backgroundColor;
+    document.documentElement.style.setProperty('--low-color', lowCol);
+  }
+} catch(e) { /* no-op */ }
+
     fillBar(colorBar, [
       { p: (counts.red / t) * 100, color: 'red', label: 'Red' },
       { p: (counts.black / t) * 100, color: 'black', label: 'Black' },
@@ -507,6 +517,91 @@ function flashGridCell(num) {
   }
   window.toggleView = toggleView;
 
+  /* ------------ Highlighting Functions ------------ */
+  function getBarHighlightEnabled() {
+    try {
+      return JSON.parse(localStorage.getItem('roulette_bar_highlight') || 'true');
+    } catch (e) {
+      return true;
+    }
+  }
+
+  function getHeatmapHighlightEnabled() {
+    try {
+      return JSON.parse(localStorage.getItem('roulette_heatmap_highlight') || 'true');
+    } catch (e) {
+      return true;
+    }
+  }
+
+  function highlightBarSegments(num) {
+    if (num === 0 || (hasDoubleZero && num === 37)) {
+      // Highlight green segments for zeros
+      document.querySelectorAll('.bar-segment').forEach(segment => {
+        if (segment.style.background === 'green' || segment.style.backgroundColor === 'green') {
+          segment.classList.add('highlight');
+          setTimeout(() => segment.classList.remove('highlight'), 1500);
+        }
+      });
+      return;
+    }
+
+    // Regular numbers 1-36
+    const isRed = redNumbers.includes(num);
+    const isLow = num <= 18;
+    const isEven = num % 2 === 0;
+    const column = (num % 3 === 1) ? 1 : (num % 3 === 2 ? 2 : 3);
+    const dozen = num <= 12 ? 1 : (num <= 24 ? 2 : 3);
+
+    // Highlight relevant segments
+    document.querySelectorAll('.bar-segment').forEach(segment => {
+      const text = segment.textContent.toLowerCase();
+      let shouldHighlight = false;
+
+      // Column highlighting
+      if (text.includes(`col${column}`) || text === `col${column}`) shouldHighlight = true;
+      
+      // Dozen highlighting
+      if (text.includes(`${dozen}st 12`) || text.includes(`${dozen}nd 12`) || text.includes(`${dozen}rd 12`)) shouldHighlight = true;
+      
+      // Color highlighting
+      if ((isRed && (text === 'red' || text.includes('red'))) ||
+          (!isRed && (text === 'black' || text.includes('black')))) shouldHighlight = true;
+      
+      // High/Low highlighting
+      if ((isLow && (text === 'low' || text.includes('low'))) ||
+          (!isLow && (text === 'high' || text.includes('high')))) shouldHighlight = true;
+      
+      // Even/Odd highlighting
+      if ((isEven && (text === 'even' || text.includes('even'))) ||
+          (!isEven && (text === 'odd' || text.includes('odd')))) shouldHighlight = true;
+
+      if (shouldHighlight) {
+        segment.classList.add('highlight');
+        setTimeout(() => segment.classList.remove('highlight'), 1500);
+      }
+    });
+  }
+
+  function wireHighlightSettings() {
+    const barToggle = document.getElementById('toggleBarHighlight');
+    const heatmapToggle = document.getElementById('toggleHeatmapHighlight');
+    
+    if (barToggle) {
+      barToggle.checked = getBarHighlightEnabled();
+      barToggle.addEventListener('change', () => {
+        localStorage.setItem('roulette_bar_highlight', barToggle.checked);
+      });
+    }
+    
+    if (heatmapToggle) {
+      heatmapToggle.checked = getHeatmapHighlightEnabled();
+      heatmapToggle.addEventListener('change', () => {
+        localStorage.setItem('roulette_heatmap_highlight', heatmapToggle.checked);
+      });
+    }
+  }
+
   /* ------------ Core Actions ------------ */
   function appendHistoryChip(num) {
     const div = document.createElement('div');
@@ -542,7 +637,18 @@ function flashGridCell(num) {
     sliderValueSpan.textContent = slider.value;
 
     afterHistoryMutated();
-      flashGridCell(num);         // <-- flash the just-entered number
+    
+    // Highlight heatmap if enabled
+    const heatmapEnabled = getHeatmapHighlightEnabled();
+    if (heatmapEnabled) {
+      flashGridCell(num);
+    }
+    
+    // Highlight bar segments if enabled
+    const barEnabled = getBarHighlightEnabled();
+    if (barEnabled) {
+      highlightBarSegments(num);
+    }
 
     persist();
   }
@@ -571,9 +677,52 @@ function flashGridCell(num) {
     updateStreakTable(); 
   }
 
-  function resetAll() {
-    if (!history.length) { alert('Nothing to reset.'); return; }
-    if (!confirm('Reset all history?')) return;
+  // Custom confirmation dialog
+  function showConfirm(title, message) {
+    return new Promise((resolve) => {
+      const dialog = document.getElementById('confirmDialog');
+      const titleEl = document.getElementById('confirmTitle');
+      const messageEl = document.getElementById('confirmMessage');
+      const okBtn = document.getElementById('confirmOk');
+      const cancelBtn = document.getElementById('confirmCancel');
+      
+      titleEl.textContent = title;
+      messageEl.textContent = message;
+      
+      function cleanup() {
+        okBtn.removeEventListener('click', handleOk);
+        cancelBtn.removeEventListener('click', handleCancel);
+        dialog.removeEventListener('close', handleCancel);
+      }
+      
+      function handleOk() {
+        cleanup();
+        dialog.close();
+        resolve(true);
+      }
+      
+      function handleCancel() {
+        cleanup();
+        dialog.close();
+        resolve(false);
+      }
+      
+      okBtn.addEventListener('click', handleOk);
+      cancelBtn.addEventListener('click', handleCancel);
+      dialog.addEventListener('close', handleCancel);
+      
+      dialog.showModal();
+    });
+  }
+
+  async function resetAll() {
+    if (!history.length) { 
+      await showConfirm('Nothing to Reset', 'No history data to clear.');
+      return; 
+    }
+    
+    const confirmed = await showConfirm('Reset Confirmation', 'Are you sure you want to reset all history data? This action cannot be undone.');
+    if (!confirmed) return;
     history.length = 0;
     historyLog.innerHTML = '';
     document.querySelectorAll(".totalCount").forEach(el => el.textContent = history.length);
@@ -661,19 +810,59 @@ function flashGridCell(num) {
     const input = document.getElementById("testCount").value.trim();
     const x = parseInt(input, 10);
     if (isNaN(x) || x <= 0) { alert("Please enter a valid positive number."); return; }
+    if (x > 5000) { alert("Maximum limit is 5000 spins. Please enter a smaller number."); return; }
 
     const speed = document.getElementById("speedSelect").value;
+    
+    // Check history action option
+    const historyActionEl = document.querySelector('input[name="historyAction"]:checked');
+    const historyAction = historyActionEl ? historyActionEl.value : 'reset';
+    if (historyAction === 'reset') {
+      // Reset history without confirmation dialog for test simulation
+      history.length = 0;
+      historyLog.innerHTML = '';
+      document.querySelectorAll(".totalCount").forEach(el => el.textContent = history.length);
+      slider.max = 0;
+      slider.value = 0;
+      sliderValueSpan.textContent = "0";
+      resetCharts();
+      updateBars();
+      updateGrid();
+      updateComboTable();
+      updateFreqChart();
+      persist();
+      updateHistoryPlaceholder();
+      updateStreakTable();
+    }
+    
     closeTestDialog();
 
     testRunning = true; stopRequested = false;
     toggleControls(true);
 
     let baseDelays = { fast: 50, regular: 150, slow: 600 };
-    if (x > 500) {
-      const factor = Math.min(1, 500 / x);
-      baseDelays.fast = Math.max(5, baseDelays.fast * factor);
-      baseDelays.regular = Math.max(20, baseDelays.regular * factor);
-      baseDelays.slow = Math.max(80, baseDelays.slow * factor);
+    
+    // More aggressive speed scaling - reduce delays significantly for large numbers
+    if (x >= 100) {
+      // Calculate speed factor based on spin count
+      let speedFactor = 1;
+      
+      if (x >= 500) {
+        speedFactor = Math.floor(x / 500) * 3; // 3x faster for every 500 spins
+      } else if (x >= 100) {
+        speedFactor = 1 + Math.floor((x - 100) / 100) * 0.5; // 0.5x faster for every 100 spins under 500
+      }
+      
+      baseDelays.fast = Math.max(1, Math.round(baseDelays.fast / speedFactor));
+      baseDelays.regular = Math.max(2, Math.round(baseDelays.regular / speedFactor));
+      baseDelays.slow = Math.max(5, Math.round(baseDelays.slow / speedFactor));
+      
+      console.log(`Speed calculation for ${x} spins:`, {
+        speedFactor,
+        delays: baseDelays,
+        selectedSpeed: speed,
+        finalDelay: baseDelays[speed]
+      });
     }
     const delay = baseDelays[speed];
 
@@ -929,7 +1118,709 @@ function updateStreakTable() {
     document.getElementById("halfChart").style.display = "none";
     document.getElementById("colorChart").style.display = "none";
     document.getElementById("parityChart").style.display = "none";
+    
+    // Initialize highlight settings
+    wireHighlightSettings();
   }
 
   init();
 }
+
+
+/* ===== RouMate Auth, Settings, Help, Board Popup (base) ===== */
+(function(){
+  // Supabase init (replace with your values)
+  let supabaseClient = null;
+  try {
+    if (window.supabase && window.supabase.createClient) {
+      const SUPABASE_URL = "https://YOUR_SUPABASE_URL";
+      const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      window.__supabase = supabaseClient;
+    }
+  } catch (e) {}
+
+  const HELP_PREF_KEY = "roumate_hide_help";
+
+  function getHideHelp() { try { return localStorage.getItem(HELP_PREF_KEY) === "1"; } catch { return false; } }
+  function setHideHelp(v) { try { localStorage.setItem(HELP_PREF_KEY, v ? "1" : "0"); } catch {} }
+
+  // Theme functions
+  function applyTheme(theme) {
+    const body = document.body;
+    // Remove existing theme classes
+    body.classList.remove("theme-light", "theme-dark");
+    
+    // Apply new theme class
+    if (theme === "light") {
+      body.classList.add("theme-light");
+    } else if (theme === "dark") {
+      body.classList.add("theme-dark");
+    }
+    // Default theme doesn't need a class - uses original background
+  }
+
+  function initTheme() {
+    const savedTheme = localStorage.getItem("roulette-theme") || "default";
+    applyTheme(savedTheme);
+  }
+
+  function renderHelpMarks() {
+    const hide = getHideHelp();
+    document.querySelectorAll(".help-qs").forEach(el => el.classList.toggle("hidden", hide));
+  }
+
+  function wireHeader() {
+    document.querySelectorAll("[data-close-dialog]").forEach(b => {
+      b.addEventListener("click", e => {
+        const dlg = e.target.closest("dialog"); if (dlg && dlg.open) dlg.close();
+      });
+    });
+    const btnAccount = document.getElementById("btnAccount");
+    const btnSettings = document.getElementById("btnSettings");
+    const accountDialog = document.getElementById("accountDialog");
+    const settingsDialog = document.getElementById("settingsDialog");
+    btnAccount && btnAccount.addEventListener("click", ()=> accountDialog && accountDialog.showModal());
+    btnSettings && btnSettings.addEventListener("click", ()=> {
+      const chk = document.getElementById("toggleHideHelp");
+      if (chk) chk.checked = getHideHelp();
+      
+      // Load current theme
+      const themeSelector = document.getElementById("themeSelector");
+      if (themeSelector) {
+        const currentTheme = localStorage.getItem("roulette-theme") || "default";
+        themeSelector.value = currentTheme;
+      }
+      
+      settingsDialog && settingsDialog.showModal();
+    });
+
+    // Theme selector handler
+    document.getElementById("themeSelector")?.addEventListener("change", (e) => {
+      const theme = e.target.value;
+      applyTheme(theme);
+      localStorage.setItem("roulette-theme", theme);
+    });
+
+    document.getElementById("btnSupportSettings")?.addEventListener("click", ()=> alert("Support: email support@yourdomain.com"));
+  }
+
+  function wireHelpDialog() {
+    const helpDialog = document.getElementById("helpDialog");
+    const helpTitle = document.getElementById("helpTitle");
+    const helpBody = document.getElementById("helpBody");
+    const copy = {
+      statistics: "<p><strong>Statistics Overview:</strong> This section displays a comprehensive analysis of your roulette spins including win/loss patterns for basic bets (red/black, even/odd, low/high numbers 1-18/19-36), performance across dozens (1-12, 13-24, 25-36) and columns, current winning/losing streaks, and a visual heatmap showing which numbers have appeared most frequently.</p><p><strong>Statistical Bars & Percentages:</strong> The colored bars show the distribution of your spins across different categories. Each bar displays percentages indicating how often each outcome occurred (Columns 1-3, Dozens 1st-3rd, Low/High, Red/Black, Even/Odd). The percentages help you see if results are close to expected probabilities or show significant deviations.</p><p><strong>Data Range Control:</strong> The slider at the top allows you to focus your analysis on recent spins vs. your entire session. The display shows 'last X out of Y total' where X is the number of recent spins being analyzed (controlled by the slider) and Y is your total session spins. Move the slider left to analyze fewer recent spins (good for spotting current trends), or right to include more of your session history (better for overall patterns).</p>", slider: "<p><strong>Data Range Slider:</strong> Use this slider to focus your statistical analysis on a specific range of recent spins. Move the slider left to analyze only your most recent spins (useful for spotting recent trends), or move it right to include your entire session history. The number shows how many of your total spins are being analyzed.</p>",
+      heatmap: "<p><strong>Number Heatmap:</strong> This color-coded grid shows the frequency of each number in your selected spin range. It’s Darker/warmer colors indicate numbers that have appeared more often ('hot' numbers), while lighter/cooler colors show numbers that have appeared less frequently ('cold' numbers). Remember: past results don't predict future outcomes in roulette.</p><p><strong>Frequency Chart:</strong> The bar chart below the heatmap provides an alternative visualization of the same data, showing each number's frequency as vertical bars. Higher bars indicate numbers that have appeared more often.</p><p><strong>Combination Analysis:</strong> This table tracks complex number patterns by showing when specific three-way combinations last occurred. Each combination represents numbers that are simultaneously Low/High, Red/Black, AND Even/Odd (e.g., 'Low-Red-Even' for numbers like 2, 12, 18). The 'Spins Ago' column shows how many spins have passed since each combination last appeared, helping you spot patterns in recent number characteristics.</p>",
+      combos: "<p><strong>Combination Analysis:</strong> This table shows how often different bet combinations have won together in your spins. For example, it tracks when a number was both Red AND Even, or Low AND Odd, etc. This helps you see patterns across multiple bet types and understand how different betting strategies would have performed with your actual spin results.</p>",
+      streaks:"<p><strong>Streak Tracking:</strong> This section monitors consecutive wins for different bet types. It shows your current active streaks (how many times in a row red, even, low, etc. have won) as well as your longest streaks achieved during this session. Useful for understanding recent momentum and historical patterns in your game.</p>"
+    };
+    document.addEventListener("click", (e) => {
+      const qs = e.target.closest(".help-qs");
+      if (!qs) return;
+      const key = qs.dataset.help || "help";
+      const titles = {
+        statistics: "Statistics Overview",
+        slider: "Data Range Slider",
+        heatmap: "Number Heatmap",
+        combos: "Combination Analysis",
+        streaks: "Streak Tracking"
+      };
+      helpTitle.textContent = titles[key] || "Help";
+      helpBody.innerHTML = copy[key] || "<p>No help available.</p>";
+      if (helpDialog && !helpDialog.open) helpDialog.showModal();
+    });
+  }
+
+  function wireBoardPopup() {
+    const boardDialog = document.getElementById("boardDialog");
+    const boardImg = document.getElementById("boardImg");
+    function openBoard() {
+      if (boardImg) boardImg.src = "roulette_board.jpg";
+      if (boardDialog && !boardDialog.open) boardDialog.showModal();
+    }
+    // Updated to use the correct IDs from HTML
+    const containers = ["#colBar", "#dozenBar", "[data-board-popup]"];
+    containers.forEach(sel => {
+      document.querySelectorAll(sel).forEach(el => { el.addEventListener("click", openBoard); });
+    });
+    document.addEventListener("click", (e)=>{
+      const t = e.target;
+      if (!t) return;
+      const hit = t.closest("#colBar, #dozenBar, [data-board-popup]");
+      if (hit) openBoard();
+    }, true);
+  }
+
+  // Basic auth UI (optional): refresh panels
+  async function refreshAuthUI() {
+    const supabase = window.__supabase;
+    const authPanel = document.getElementById("authPanel");
+    const profilePanel = document.getElementById("profilePanel");
+    if (!supabase || !authPanel || !profilePanel) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      authPanel.hidden = true; profilePanel.hidden = false;
+      document.getElementById("pfEmail").value = session.user.email || "";
+      try {
+        const { data: prof } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
+        if (prof) {
+          document.getElementById("pfFirstName").value = prof.first_name || "";
+          document.getElementById("pfLastName").value = prof.last_name || "";
+        }
+      } catch {}
+    } else {
+      authPanel.hidden = false; profilePanel.hidden = true;
+    }
+  }
+
+  function wireAuth() {
+    const supabase = window.__supabase;
+    if (!supabase) return;
+    supabase.auth.onAuthStateChange(() => refreshAuthUI());
+    document.getElementById("btnGoogle")?.addEventListener("click", ()=> supabase.auth.signInWithOAuth({ provider:"google" }));
+    document.getElementById("btnApple")?.addEventListener("click", ()=> supabase.auth.signInWithOAuth({ provider:"apple" }));
+    // Handle sign out buttons (there might be multiple with same ID)
+    const signOutButtons = document.querySelectorAll("#btnSignOut");
+    signOutButtons.forEach(button => {
+      button?.addEventListener("click", (e) => { 
+        e.preventDefault();
+        console.log('Sign out clicked'); // Debug log
+        // For now, simply redirect to signin page (works for both Supabase and simulated auth)
+        window.location.href = 'signin.html';
+      });
+    });
+    document.getElementById("emailSignupForm")?.addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      const first_name = (document.getElementById("firstName").value||"").trim();
+      const last_name = (document.getElementById("lastName").value||"").trim();
+      const email = (document.getElementById("email").value||"").trim();
+      const password = document.getElementById("password").value;
+      const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { first_name, last_name } } });
+      if (error) return alert(error.message);
+      if (data.user) { try { await supabase.from("profiles").upsert({ id: data.user.id, first_name, last_name, email }); } catch {} }
+      alert("Check your email to confirm your account."); await refreshAuthUI();
+    });
+    document.getElementById("emailSigninForm")?.addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      const email = (document.getElementById("signinEmail").value||"").trim();
+      const password = document.getElementById("signinPassword").value;
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) return alert(error.message);
+      await refreshAuthUI();
+    });
+    document.getElementById("btnChangePassword")?.addEventListener("click", async ()=>{
+      alert("Password reset link will be sent to your email.");
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.email) await supabase.auth.resetPasswordForEmail(session.user.email, { redirectTo: location.href });
+    });
+    document.getElementById("btnSupport")?.addEventListener("click", ()=> alert("Support: email support@yourdomain.com"));
+    refreshAuthUI();
+  }
+
+  // Boot
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", ()=> {
+      wireHeader(); wireHelpDialog(); wireBoardPopup();
+      renderHelpMarks();
+      initTheme();
+    });
+  } else {
+    wireHeader(); wireHelpDialog(); wireBoardPopup();
+    renderHelpMarks();
+    initTheme();
+  }
+})();
+
+
+/* ===== RouMate Enhancements v2 ===== */
+(function(){
+  const HELP_PREF_KEY = "roumate_hide_help";
+  const SCALE_KEY = "roumate_text_scale";
+
+  function getHideHelp() {
+    try { return localStorage.getItem(HELP_PREF_KEY) === "1"; } catch { return false; }
+  }
+  function setHideHelp(v) {
+    try { localStorage.setItem(HELP_PREF_KEY, v ? "1" : "0"); } catch {}
+  }
+  function applyTextScale(valPct) {
+    const v = Math.max(85, Math.min(130, parseInt(valPct || 100, 10)));
+    document.documentElement.style.setProperty("--app-text-scale", (v/100).toString());
+    try { localStorage.setItem(SCALE_KEY, String(v)); } catch {}
+    const out = document.getElementById("textScaleVal");
+    if (out) out.textContent = v + "%";
+  }
+  function loadTextScale() {
+    let v = 100;
+    try { v = parseInt(localStorage.getItem(SCALE_KEY) || "100", 10); } catch {}
+    applyTextScale(v);
+    const slider = document.getElementById("textScale");
+    if (slider) slider.value = v;
+  }
+
+  function insertHelpMark(el, key) {
+    if (!el || el.querySelector(".help-qs[data-help='"+key+"']")) return;
+    const span = document.createElement("span");
+    span.className = "help-qs";
+    span.dataset.help = key;
+    span.textContent = "?";
+    el.appendChild(span);
+  }
+
+  function addDynamicHelp() {
+    // Headers appearing after app renders
+    document.querySelectorAll("h2, h3").forEach(h => {
+      const txt = (h.textContent||"").toLowerCase();
+      if (txt.includes("number frequency heatmap")) insertHelpMark(h, "heatmap");
+      if (txt.includes("combination")) insertHelpMark(h, "combos");
+      if (txt.includes("longest") && txt.includes("streak")) insertHelpMark(h, "streaks");
+    });
+    // Slider help
+    const slider = document.getElementById("slider") || document.querySelector("input[type='range']");
+    if (slider) {
+      const label = document.querySelector("label[for='slider'], #sliderLabel, .slider-label") || slider.parentElement;
+      if (label) insertHelpMark(label, "slider");
+    }
+    renderHelpMarks();
+  }
+
+  function renderHelpMarks() {
+    const hide = getHideHelp();
+    document.querySelectorAll(".help-qs").forEach(el => el.classList.toggle("hidden", hide));
+  }
+
+  // Variant switch: checked = American, unchecked = European
+  function setVariantSwitchFromLocation() {
+    const chk = document.getElementById("toggleVariant");
+    if (!chk) return;
+    const isAmerican = /american\.html$/i.test(location.pathname);
+    chk.checked = isAmerican;
+  }
+  function wireVariantSwitch() {
+    const chk = document.getElementById("toggleVariant");
+    if (!chk) return;
+    chk.addEventListener("change", ()=> {
+      const target = chk.checked ? "american.html" : "european.html";
+      if (!location.pathname.endsWith(target)) location.href = target;
+    });
+    setVariantSwitchFromLocation();
+  }
+
+  // Robust board popup
+  function wireBoardPopupRobust() {
+    const boardDialog = document.getElementById("boardDialog");
+    const boardImg = document.getElementById("boardImg");
+    function openBoard() {
+      if (boardImg) boardImg.src = "roulette_board.jpg";
+      if (boardDialog && !boardDialog.open) boardDialog.showModal();
+    }
+    // Updated to use the correct IDs from HTML
+    const containers = ["#colBar", "#dozenBar", "[data-board-popup]"];
+    containers.forEach(sel => {
+      document.querySelectorAll(sel).forEach(el => { el.addEventListener("click", openBoard); });
+    });
+    document.addEventListener("click", (e)=>{
+      const t = e.target;
+      if (!t) return;
+      const hit = t.closest("#colBar, #dozenBar, [data-board-popup]");
+      if (hit) openBoard();
+    }, true);
+  }
+
+  function classifyStreaksTable() {
+    const heads = Array.from(document.querySelectorAll("h2, h3"));
+    heads.forEach(h => {
+      const txt = (h.textContent||"").toLowerCase();
+      if (txt.includes("longest") && txt.includes("streak")) {
+        let el = h.nextElementSibling;
+        while (el && el.tagName !== "TABLE") el = el.nextElementSibling;
+        if (el) el.classList.add("streaks-table");
+      }
+    });
+  }
+
+  function observeMutations() {
+    const mo = new MutationObserver(()=> {
+      addDynamicHelp();
+      classifyStreaksTable();
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+  }
+
+  function initSettingsUI() {
+    // Hide-help switch
+    const hideChk = document.getElementById("toggleHideHelp");
+    if (hideChk) {
+      hideChk.checked = getHideHelp();
+      hideChk.addEventListener("change", e => { setHideHelp(e.target.checked); renderHelpMarks(); });
+    }
+    // Text scale slider
+    const scale = document.getElementById("textScale");
+    if (scale) {
+      loadTextScale();
+      const update = ()=> applyTextScale(scale.value);
+      scale.addEventListener("input", update);
+      scale.addEventListener("change", update);
+    } else {
+      loadTextScale();
+    }
+  }
+
+  // Boot
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", ()=>{
+      wireVariantSwitch();
+      initSettingsUI();
+      wireBoardPopupRobust();
+      addDynamicHelp();
+      classifyStreaksTable();
+      observeMutations();
+    });
+  } else {
+    wireVariantSwitch();
+    initSettingsUI();
+    wireBoardPopupRobust();
+    addDynamicHelp();
+    classifyStreaksTable();
+    observeMutations();
+  }
+})();
+
+
+/* ===== RouMate v4 tweaks ===== */
+(function(){
+  // Keep Settings open across variant switch
+  function setReopenSettingsFlag() {
+    try { localStorage.setItem("__roumate_reopen_settings", "1"); } catch {}
+  }
+  function maybeReopenSettings() {
+    try {
+      const f = localStorage.getItem("__roumate_reopen_settings");
+      if (f === "1") {
+        localStorage.removeItem("__roumate_reopen_settings");
+        const dlg = document.getElementById("settingsDialog");
+        if (dlg && !dlg.open) dlg.showModal();
+      }
+    } catch {}
+  }
+
+  // Strengthen variant switch handler to persist reopen flag
+  function reinforceVariantSwitch() {
+    const chk = document.getElementById("toggleVariant");
+    if (!chk) return;
+    // set initial
+    const isAmerican = /american\.html$/i.test(location.pathname);
+    chk.checked = isAmerican;
+    // on change -> set flag then navigate
+    chk.addEventListener("change", ()=>{
+      setReopenSettingsFlag();
+      const target = chk.checked ? "american.html" : "european.html";
+      if (!location.pathname.endsWith(target)) location.href = target;
+    });
+  }
+
+  // Remove in-page roulette labels (not the header)
+  function hideBodyRouletteTitles() {
+    const header = document.querySelector(".app-header");
+    document.querySelectorAll("h1, h2, h3").forEach(h => {
+      const txt = (h.textContent||"").toLowerCase();
+      const insideHeader = header && header.contains(h);
+      if (!insideHeader && (txt.includes("american roulette") || txt.includes("european roulette"))) {
+        h.style.display = "none";
+      }
+    });
+  }
+
+  // Ensure help mark next to statistics slider (explicit injection)
+  function ensureSliderHelp() {
+    const slider = document.getElementById("slider") || document.querySelector("input[type='range']");
+    if (!slider) return;
+    // avoid adding in settings dialog
+    if (slider.closest("#settingsDialog")) return;
+    // find a sibling label/container
+    let host = document.querySelector("label[for='slider'], #sliderLabel, .slider-label");
+    if (!host) host = slider.parentElement;
+    if (!host) return;
+    if (!host.querySelector(".help-qs[data-help='slider']")) {
+      const span = document.createElement("span");
+      span.className = "help-qs";
+      span.dataset.help = "slider";
+      span.textContent = "?";
+      host.appendChild(span);
+    }
+    // Do not show help inside settings dialog
+    document.querySelectorAll("#settingsDialog .help-qs").forEach(el=> el.remove());
+  }
+
+  // Export all charts to Excel (embeds images; not natively editable). Also adds a Data sheet.
+  async function exportChartsToExcel(){
+    const canvases = Array.from(document.querySelectorAll("canvas"));
+    if (!canvases.length) { alert("No charts found."); return; }
+
+    // Dynamically load ExcelJS from CDN if not present
+    async function loadScript(src){
+      return new Promise((res, rej)=>{
+        if (document.querySelector(`script[src="${src}"]`)) return res();
+        const s = document.createElement("script");
+        s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s);
+      });
+    }
+    await loadScript("https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js");
+
+    const wb = new ExcelJS.Workbook();
+  function uniqueSheetName(wb, base) {
+    let name = base, i = 1;
+    while (wb.getWorksheet(name)) { name = base.slice(0, 28) + "-" + (++i); }
+    return name;
+  }
+
+    const ts = new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
+
+    // Add images and data
+    canvases.forEach((c, i) => {
+      const ws = wb.addWorksheet(`Chart ${i+1}`);
+      const dataURL = c.toDataURL("image/png");
+      const imgId = wb.addImage({ base64: dataURL.split(',')[1], extension: 'png' });
+      // Place image starting at A1, size approximate to canvas
+      ws.addImage(imgId, { tl: { col: 0, row: 0 }, ext: { width: c.width, height: c.height } });
+    });
+
+    // Optional: add a Data sheet (placeholder; you can wire actual datasets later)
+    const ds = wb.addWorksheet("Data");
+    ds.getCell("A1").value = "Note";
+    ds.getCell("B1").value = "These charts are embedded images. They are not editable as native Excel charts. Export raw data to build Excel-native charts.";
+
+    const buf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `RouMate-Charts-${ts}.xlsx`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=> URL.revokeObjectURL(a.href), 2000);
+  }
+
+  function wireExportToExcel(){
+    const b = document.getElementById("btnExportCharts");
+    if (b) b.addEventListener("click", exportChartsToExcel);
+  }
+
+  function boot(){
+    maybeReopenSettings();
+    reinforceVariantSwitch();
+    hideBodyRouletteTitles();
+    ensureSliderHelp();
+    wireExportToExcel();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
+
+
+/* ===== RouMate v5 tweaks ===== */
+(function(){
+  // Strengthen board popup for first bars by listening in capture phase
+  function wireBoardPopupExtraRobust(){
+    const boardDialog = document.getElementById("boardDialog");
+    const boardImg = document.getElementById("boardImg");
+    function openBoard() {
+      if (boardImg) boardImg.src = "roulette_board.jpg";
+      if (boardDialog && !boardDialog.open) boardDialog.showModal();
+    }
+    const handler = (e)=>{
+      const t = e.target;
+      if (!t) return;
+      if (t.closest("#colBar, #dozenBar, [data-board-popup]")) openBoard();
+    };
+    document.addEventListener("pointerdown", handler, true);
+    document.addEventListener("click", handler, true);
+  }
+
+  async function exportDataTablesToExcel(){
+    async function loadScript(src){
+      return new Promise((res, rej)=>{
+        if (document.querySelector(`script[src="${src}"]`)) return res();
+        const s = document.createElement("script");
+        s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s);
+      });
+    }
+    await loadScript("https://cdn.jsdelivr.net/npm/exceljs/dist/exceljs.min.js");
+
+    const wb = new ExcelJS.Workbook();
+  function uniqueSheetName(wb, base) {
+    let name = base, i = 1;
+    while (wb.getWorksheet(name)) { name = base.slice(0, 28) + "-" + (++i); }
+    return name;
+  }
+
+    const ts = new Date().toISOString().slice(0,19).replace(/[:T]/g,"-");
+
+    // History sheet
+    (function addHistory(){
+      const ws = wb.addWorksheet(uniqueSheetName(wb, "Spins"));
+      try {
+        const isAmerican = /american\.html$/i.test(location.pathname);
+        const key = isAmerican ? "american_roulette_v1" : "european_roulette_v1";
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          const obj = JSON.parse(raw);
+          const hist = (obj && obj.history) ? obj.history : (Array.isArray(obj)? obj : []);
+          ws.getCell(1,1).value = "Index";
+          ws.getCell(1,2).value = "Number";
+          hist.forEach((val, i)=>{
+            ws.getCell(i+2,1).value = i+1;
+            ws.getCell(i+2,2).value = (val && typeof val==="object" && val.n!=null) ? val.n : val;
+          });
+        } else {
+          ws.getCell(1,1).value = "No saved history found for this variant.";
+        }
+      } catch(e){
+        ws.getCell(1,1).value = "Error reading history: " + (e && e.message ? e.message : String(e));
+      }
+    })();
+
+    // Tables sheet(s)
+    const tables = Array.from(document.querySelectorAll("table"));
+    tables.forEach((table, idx)=>{
+      const titleCand = (table.getAttribute("data-title") || (table.previousElementSibling && table.previousElementSibling.textContent) || ("Table " + (idx+1)));
+      const name = String(titleCand).trim().slice(0, 28) || ("Table " + (idx+1));
+      const ws = wb.addWorksheet(uniqueSheetName(wb, name));
+      let r = 1;
+      // header
+      const headRow = table.tHead ? table.tHead.rows[0] : table.rows[0];
+      if (headRow) {
+        Array.from(headRow.cells).forEach((th, c)=> ws.getCell(r, c+1).value = th.textContent.trim());
+        r++;
+      }
+      // body rows
+      const bodyRows = table.tBodies && table.tBodies.length ? table.tBodies[0].rows : Array.from(table.rows).slice(1);
+      Array.from(bodyRows).forEach(tr=>{
+        Array.from(tr.cells).forEach((td, c)=> ws.getCell(r, c+1).value = td.textContent.trim());
+        r++;
+      });
+    });
+
+    const buf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `RouMate-Data-${ts}.xlsx`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=> URL.revokeObjectURL(a.href), 2000);
+  }
+
+  function wireExportButtons(){
+    const bData = document.getElementById("btnExportData");
+    if (bData) bData.addEventListener("click", exportDataTablesToExcel);
+  }
+
+  function bootV5(){
+    wireBoardPopupExtraRobust();
+    wireExportButtons();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootV5);
+  } else {
+    bootV5();
+  }
+})();
+
+
+// --- Non-destructive overrides (requested) ---
+try {
+  window.exportCSV = () => alert("Export disabled.");
+} catch(e) {}
+try {
+  window.exportDataTablesToExcel = async () => alert("Export disabled.");
+} catch(e) {}
+
+
+// Set a default low color on load (will be updated after bars render)
+try { document.documentElement.style.setProperty('--low-color', '#2980b9'); } catch(e) {}
+
+
+// Augment text scaling to affect canvases (Chart.js) too
+(function(){
+  const docEl = document.documentElement;
+  const origApply = (typeof applyTextScale === 'function') ? applyTextScale : function(v){
+    docEl.style.setProperty('--app-text-scale', String((v/100)));
+  };
+  window.applyTextScale = function(v){
+    try {
+      origApply(v);
+    } catch(e) {
+      docEl.style.setProperty('--app-text-scale', String((v/100)));
+    }
+    try {
+      const s = (v/100);
+      if (window.Chart && Chart.defaults && Chart.defaults.font) {
+        Chart.defaults.font.size = Math.round(12 * s);
+        // Refresh charts if possible
+        const insts = Chart.instances || Chart.registry?.instances;
+        if (insts) {
+          const arr = Array.isArray(insts) ? insts : Object.values(insts);
+          arr.forEach(ch => { try { ch.update(); } catch(_e){} });
+        }
+      }
+    } catch(_e) {}
+    try {
+      const out = document.getElementById('textScaleVal');
+      if (out) out.textContent = v + '%';
+    } catch(_e){}
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const slider = document.getElementById('textScale');
+    if (slider) {
+      slider.addEventListener('input', function(e){
+        const v = parseInt(e.target.value, 10);
+        if (!isNaN(v)) window.applyTextScale(v);
+      });
+    }
+  });
+})();
+
+
+// ===== Global Text Scaling wiring =====
+(function(){
+  const docEl = document.documentElement;
+  // Respect an existing applyTextScale if present; otherwise set CSS var directly
+  const _apply = (typeof window.applyTextScale === 'function')
+    ? window.applyTextScale
+    : function(v){ docEl.style.setProperty('--app-text-scale', String(v/100)); };
+
+  window.applyTextScale = function(v){
+    try { _apply(v); } catch(e) { docEl.style.setProperty('--app-text-scale', String(v/100)); }
+    // Chart.js canvas text scaling
+    try {
+      const s = v/100;
+      if (window.Chart && Chart.defaults && Chart.defaults.font) {
+        Chart.defaults.font.size = Math.round(12 * s);
+        const insts = Chart.instances || Chart.registry?.instances;
+        const arr = Array.isArray(insts) ? insts : Object.values(insts || {});
+        arr.forEach(ch => { try { ch.update(); } catch(_e){} });
+      }
+    } catch(_e){}
+    try { localStorage.setItem('TEXT_SCALE', String(v)); } catch(_e){}
+    try { const out = document.getElementById('textScaleVal'); if (out) out.textContent = v + '%'; } catch(_e){}
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const slider = document.getElementById('textScale');
+    let v = 100;
+    try { v = parseInt(localStorage.getItem('TEXT_SCALE') || '100', 10); } catch(_e){}
+    if (slider) {
+      slider.value = String(v);
+      slider.addEventListener('input', e => {
+        const val = parseInt(e.target.value, 10);
+        if (!isNaN(val)) window.applyTextScale(val);
+      });
+    }
+    window.applyTextScale(v);
+  });
+})();

@@ -2,16 +2,170 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>European Roulette</title>
   <link rel="stylesheet" href="roulette.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="roulette-storage.js"></script> 
 
   <script src="roulette-template.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+
+<!-- App Header -->
+<header class="app-header">
+  <button class="icon-btn" id="btnAccount" title="Account (Home)">🏠</button>
+  <h1 class="app-title">RouMate</h1>
+  <button class="icon-btn" id="btnSettings" title="Settings">⚙️</button>
+</header>
+
+<!-- Account / Auth Dialog -->
+<dialog id="accountDialog" class="dialog">
+  <h3>Account</h3>
+
+  <!-- If signed OUT: show sign in/up -->
+  <div id="authPanel">
+    <p>Sign in to use RouMate</p>
+    <div class="auth-row">
+      <button id="btnGoogle" class="social-btn">Continue with Google</button>
+      <button id="btnApple" class="social-btn">Continue with Apple</button>
+    </div>
+    <div class="sep">or</div>
+    <form id="emailSignupForm">
+      <div class="form-row">
+        <input type="text" id="firstName" placeholder="First name" required />
+        <input type="text" id="lastName" placeholder="Last name" required />
+      </div>
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button type="submit" class="primary">Create account</button>
+    </form>
+    <details class="mt8">
+      <summary>Already have an account?</summary>
+      <form id="emailSigninForm" class="mt8">
+        <input type="email" id="signinEmail" placeholder="Email" required />
+        <input type="password" id="signinPassword" placeholder="Password" required />
+        <button type="submit">Sign in</button>
+      </form>
+    </details>
+  </div>
+
+  <!-- If signed IN: show profile -->
+  <div id="profilePanel" hidden>
+    <div class="profile-grid">
+      <div>
+        <label>First name</label>
+        <input id="pfFirstName" />
+      </div>
+      <div>
+        <label>Last name</label>
+        <input id="pfLastName" />
+      </div>
+      <div class="col-span-2">
+        <label>Email</label>
+        <input id="pfEmail" disabled />
+      </div>
+    </div>
+    <div class="account-actions">
+      <button id="btnChangePassword">Change password</button>
+      <button id="btnManageSub">Manage subscription</button>
+      <button id="btnSupport">Support</button>
+      <span class="flex-grow"></span>
+      <button id="btnSignOut" class="danger">Sign out</button>
+    </div>
+  </div>
+
+  <div class="dialog-actions center">
+    <button data-close-dialog>Close</button>
+  </div>
+</dialog>
+
+<!-- Settings Dialog -->
+
+<dialog id="settingsDialog" class="dialog">
+  <h3>Settings</h3>
+
+  <div class="setting-row setting-variant left">
+    <span class="switch-side">European</span>
+    <label class="switch">
+      <input type="checkbox" id="toggleVariant" />
+      <span class="slider"></span>
+    </label>
+    <span class="switch-side">American</span>
+  </div>
+
+  <div class="setting-row">
+    <label class="switch">
+      <input type="checkbox" id="toggleHideHelp" />
+      <span class="slider"></span>
+      <span class="switch-label">Hide help question marks</span>
+    </label>
+  </div>
+
+  <div class="setting-row">
+    <label class="switch">
+      <input type="checkbox" id="toggleBarHighlight" checked />
+      <span class="slider"></span>
+      <span class="switch-label">Highlight bar segments</span>
+    </label>
+  </div>
+
+  <div class="setting-row">
+    <label class="switch">
+      <input type="checkbox" id="toggleHeatmapHighlight" checked />
+      <span class="slider"></span>
+      <span class="switch-label">Highlight heatmap numbers</span>
+    </label>
+  </div>
+
+  <div class="setting-group">
+    <div class="setting-row-left">
+      <label class="theme-label">Theme</label>
+      <select id="themeSelector" class="theme-select">
+        <option value="default">Default</option>
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </div>
+
+    <div class="setting-row-left">
+      <label class="theme-label">Text Size</label>
+      <div class="text-size-control">
+        <button id="btnTextSizeDown" class="text-size-btn">A-</button>
+        <input type="range" id="textScale" min="75" max="110" value="100" style="flex: 1; margin: 0 10px; width: 60px;" />
+        <button id="btnTextSizeUp" class="text-size-btn">A+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="setting-row">
+    </div>
+
+  <div class="dialog-actions center">
+    <button data-close-dialog>Done</button>
+  </div>
+</dialog>
+
+
+<!-- Reusable Help Dialog -->
+<dialog id="helpDialog" class="dialog">
+  <h3 id="helpTitle">Help</h3>
+  <div id="helpBody" class="help-body"></div>
+  <div class="dialog-actions center">
+    <button data-close-dialog>Close</button>
+  </div>
+</dialog>
+
+<!-- Board Image Dialog -->
+<dialog id="boardDialog" class="dialog board-dialog">
+  <img id="boardImg" src="roulette_board.jpg" alt="Roulette Board" />
+  <div class="dialog-actions center">
+    <button data-close-dialog>Close</button>
+  </div>
+</dialog>
+
+
   <div class="top-section">
     <h1>European Roulette</h1>
     <div class="main-center">
@@ -24,7 +178,7 @@
       </div>
 
       <div class="stats-header">
-        <h3>Statistics (last <span id="sliderValue">0</span> out of <span class="totalCount">0</span> total)</h3>
+        <h3><span class="help-qs" data-help="statistics">?</span> Statistics (last <span id="sliderValue">0</span> out of <span class="totalCount">0</span> total)</h3>
         <input type="range" id="rangeSlider" min="0" value="0" />
       </div>
     </div>
@@ -90,18 +244,28 @@
     <button class="btn-reset" onclick="resetAll()">Reset</button>
     <button class="btn-view" onclick="toggleView()">🔄 Keypad</button>
     <button class="btn-voice" onclick="toggleListening()">Voice Input</button>
-    <button class="btn-test" onclick="openTestDialog()">▶Run Test</button>
+    <button class="btn-test" onclick="openTestDialog()">Run Test</button>
   </div>
 
   <!-- Test dialog -->
   <div id="testDialog" class="dialog-overlay" style="display:none;">
     <div class="dialog-content">
       <h3>Run Test Simulation</h3>
-      <p>Enter how many random spins to simulate:</p>
+      <p>Enter how many random spins to simulate (max 5000):</p>
 
-      <input id="testCount" type="number" min="1" step="1" placeholder="e.g. 100"
+      <input id="testCount" type="number" min="1" max="5000" step="1" placeholder="e.g. 100"
              style="width:90%; padding:6px;"
-             oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
+             oninput="this.value = this.value.replace(/[^0-9]/g, ''); if(parseInt(this.value) > 5000) this.value = 5000;" />
+
+      <div style="margin-top:10px;">History action:</div>
+      <div style="margin:8px 0;">
+        <label style="display:block; margin:4px 0;">
+          <input type="radio" name="historyAction" value="reset" checked /> Reset history before test
+        </label>
+        <label style="display:block; margin:4px 0;">
+          <input type="radio" name="historyAction" value="continue" /> Continue from current history
+        </label>
+      </div>
 
       <div style="margin-top:10px;">Choose speed:</div>
       <select id="speedSelect" style="width:90%; padding:6px; margin:8px 0;">
@@ -143,5 +307,23 @@
       initRoulette({ hasDoubleZero: false, title: "European Roulette" });
     });
   </script>
+<script>
+(function(){
+  function onReady(fn){ if(document.readyState!=='loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
+  onReady(function(){
+    var b = document.getElementById('btnStatsHelp');
+    var dlg = document.getElementById('helpDialog');
+    var title = document.getElementById('helpTitle');
+    var body = document.getElementById('helpBody');
+    if(b && dlg && dlg.show){
+      b.addEventListener('click', function(){
+        if(title) title.textContent = 'Statistics';
+        if(body) body.innerHTML = '<p>This section summarizes your recent spins.</p><ul style="text-align:left"><li><b>Pairs</b>: red/black, even/odd, low/high</li><li><b>Dozens & Columns</b></li><li><b>Streaks</b>: current and longest</li><li><b>Number heatmap</b>: frequency of exact numbers</li></ul>';
+        dlg.show();
+      });
+    }
+  });
+})();
+</script>
 </body>
 </html>

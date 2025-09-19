@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <title>RouMate - Sign In</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --error: #dc2626;
+      --success: #059669;
+    }
+    
+    * { box-sizing: border-box; }
+    
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: url('background.jpg') center/cover no-repeat fixed;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .signin-container {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      padding: 40px 32px;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .logo {
+      width: 120px;
+      height: auto;
+      margin-bottom: 16px;
+    }
+    
+    .welcome-text {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 16px;
+      margin: 0 0 8px 0;
+    }
+    
+    .signin-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 1);
+      margin: 0 0 16px 0;
+    }
+    
+    .app-name {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0 0 8px 0;
+      letter-spacing: -0.5px;
+    }
+    
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 16px;
+      margin: 0;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    
+    .phone-input-container {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    
+    .country-select {
+      flex: 0 0 120px;
+      padding: 14px 12px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      color: rgba(255, 255, 255, 0.9);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .country-select:focus {
+      outline: none;
+      border-color: rgba(255, 255, 255, 0.6);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+    }
+    
+    .phone-input {
+      flex: 1;
+      padding: 14px 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      color: rgba(255, 255, 255, 0.9);
+      transition: all 0.2s;
+    }
+    
+    .phone-input:focus {
+      outline: none;
+      border-color: rgba(255, 255, 255, 0.6);
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+    }
+    
+    .phone-input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .continue-btn {
+      width: 100%;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin: 24px 0;
+    }
+    
+    .continue-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+      transform: translateY(-1px);
+    }
+    
+    .continue-btn:active {
+      transform: translateY(0);
+    }
+    
+    .continue-btn:disabled {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .legal-text {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.8);
+      text-align: center;
+      line-height: 1.4;
+      margin-top: 24px;
+    }
+    
+    .legal-text a {
+      color: rgba(255, 255, 255, 1);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .legal-text a:hover {
+      text-decoration: underline;
+    }
+    
+    .error-message {
+      background: rgba(220, 38, 38, 0.2);
+      backdrop-filter: blur(10px);
+      color: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    
+    .success-message {
+      background: rgba(5, 150, 105, 0.2);
+      backdrop-filter: blur(10px);
+      color: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(5, 150, 105, 0.3);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    
+    @media (max-width: 480px) {
+      .signin-container {
+        padding: 32px 24px;
+        border-radius: 16px;
+      }
+      
+      .logo {
+        width: 100px;
+      }
+      
+      .phone-input-container {
+        gap: 8px;
+      }
+      
+      .country-select {
+        flex: 0 0 100px;
+        font-size: 14px;
+        padding: 12px 8px;
+      }
+      
+      .phone-input {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="signin-container">
+    <div class="header">
+      <img src="introduction_logo.png" alt="RouMate" class="logo" />
+      <p class="welcome-text">Welcome to your roulette companion</p>
+      <h2 class="signin-title">Sign In</h2>
+    </div>
+    
+    <div class="error-message" id="errorMessage"></div>
+    <div class="success-message" id="successMessage"></div>
+    
+    <form id="signinForm">
+      <div class="form-group">
+        <div class="phone-input-container">
+          <select class="country-select" id="countryCode">
+            <option value="+1">🇺🇸 +1</option>
+            <option value="+44">🇬🇧 +44</option>
+            <option value="+33">🇫🇷 +33</option>
+            <option value="+49">🇩🇪 +49</option>
+            <option value="+39">🇮🇹 +39</option>
+            <option value="+34">🇪🇸 +34</option>
+            <option value="+81">🇯🇵 +81</option>
+            <option value="+82">🇰🇷 +82</option>
+            <option value="+86">🇨🇳 +86</option>
+            <option value="+91">🇮🇳 +91</option>
+            <option value="+55">🇧🇷 +55</option>
+            <option value="+52">🇲🇽 +52</option>
+            <option value="+7">🇷🇺 +7</option>
+            <option value="+61">🇦🇺 +61</option>
+            <option value="+64">🇳🇿 +64</option>
+            <option value="+27">🇿🇦 +27</option>
+            <option value="+20">🇪🇬 +20</option>
+            <option value="+971">🇦🇪 +971</option>
+            <option value="+966">🇸🇦 +966</option>
+            <option value="+65">🇸🇬 +65</option>
+            <option value="+60">🇲🇾 +60</option>
+            <option value="+66">🇹🇭 +66</option>
+            <option value="+84">🇻🇳 +84</option>
+            <option value="+63">🇵🇭 +63</option>
+            <option value="+62">🇮🇩 +62</option>
+          </select>
+          <input 
+            type="tel" 
+            class="phone-input" 
+            id="phoneNumber" 
+            placeholder="Enter your phone number"
+            required
+          />
+        </div>
+      </div>
+      
+      <button type="submit" class="continue-btn" id="continueBtn">
+        Continue
+      </button>
+    </form>
+    
+    <!-- OTP Verification Section (hidden initially) -->
+    <div id="otpSection" style="display: none;">
+      <div class="verification-info" style="text-align: center; margin-bottom: 24px;">
+        <div id="codeDisplay" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(10px); padding: 16px; border-radius: 12px; margin: 16px 0; border: 2px solid rgba(255, 255, 255, 0.3);">
+          <p style="color: rgba(255, 255, 255, 0.9); margin: 0 0 8px 0; font-size: 14px;">Your verification code is:</p>
+          <div id="displayedCode" style="font-size: 28px; font-weight: bold; color: rgba(255, 255, 255, 1); letter-spacing: 4px; font-family: 'Courier New', monospace;">------</div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <input 
+          type="text" 
+          class="phone-input" 
+          id="otpInput" 
+          placeholder="Enter 6-digit code"
+          maxlength="6"
+          style="text-align: center; font-size: 18px; letter-spacing: 2px; margin: 0 auto; display: block; max-width: 200px;"
+        />
+      </div>
+      
+      <button type="button" class="continue-btn" id="verifyBtn">
+        Continue
+      </button>
+      
+      <p style="color: rgba(255, 255, 255, 0.7); text-align: center; font-size: 14px; margin: 16px 0;">
+        Didn't receive the code? <a href="#" id="resendCode" style="color: rgba(255, 255, 255, 1); text-decoration: underline;">Resend</a>
+      </p>
+    </div>
+    
+    <p class="legal-text">
+      By tapping Continue, you agree to our 
+      <a href="/terms" target="_blank">Terms and Conditions</a>, 
+      <a href="/privacy" target="_blank">Privacy</a>, and 
+      <a href="/cookies" target="_blank">Cookies Policy</a>
+    </p>
+  </div>
+
+  <script>
+    // Form elements
+    const signinForm = document.getElementById('signinForm');
+    const countryCode = document.getElementById('countryCode');
+    const phoneNumber = document.getElementById('phoneNumber');
+    const continueBtn = document.getElementById('continueBtn');
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+    const otpSection = document.getElementById('otpSection');
+    const otpInput = document.getElementById('otpInput');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const resendCode = document.getElementById('resendCode');
+    const displayedCode = document.getElementById('displayedCode');
+    
+    // Simulated verification code (in real implementation, this would be sent via SMS)
+    let simulatedCode = '';
+    let phoneNumberForVerification = '';
+    
+    // Phone number validation
+    function validatePhoneNumber(phone) {
+      // Basic phone number validation (digits only, 7-15 characters)
+      const cleaned = phone.replace(/\D/g, '');
+      return cleaned.length >= 7 && cleaned.length <= 15;
+    }
+    
+    // Show error message
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
+      successMessage.style.display = 'none';
+    }
+    
+    // Show success message
+    function showSuccess(message) {
+      successMessage.textContent = message;
+      successMessage.style.display = 'block';
+      errorMessage.style.display = 'none';
+    }
+    
+    // Hide messages
+    function hideMessages() {
+      errorMessage.style.display = 'none';
+      successMessage.style.display = 'none';
+    }
+    
+    // Format phone number as user types
+    phoneNumber.addEventListener('input', function(e) {
+      // Remove non-digits
+      let value = e.target.value.replace(/\D/g, '');
+      
+      // Limit length
+      if (value.length > 15) {
+        value = value.substring(0, 15);
+      }
+      
+      e.target.value = value;
+      hideMessages();
+    });
+    
+    // Handle form submission
+    signinForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const phone = phoneNumber.value.trim();
+      const country = countryCode.value;
+      
+      if (!phone) {
+        showError('Please enter your phone number');
+        return;
+      }
+      
+      if (!validatePhoneNumber(phone)) {
+        showError('Please enter a valid phone number');
+        return;
+      }
+      
+      // Store phone number for verification
+      phoneNumberForVerification = country + phone;
+      
+      // Generate a random 6-digit code for simulation
+      simulatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      // Simulate sending SMS
+      continueBtn.textContent = 'Sending...';
+      continueBtn.disabled = true;
+      
+      setTimeout(() => {
+        // Hide the phone form and show OTP section
+        signinForm.style.display = 'none';
+        otpSection.style.display = 'block';
+        
+        // Display the code prominently
+        displayedCode.textContent = simulatedCode;
+        
+        showSuccess(`Verification code sent to ${phoneNumberForVerification}`);
+        
+        // Focus on OTP input
+        otpInput.focus();
+        
+        continueBtn.textContent = 'Continue';
+        continueBtn.disabled = false;
+      }, 2000);
+    });
+    
+    // Handle OTP verification
+    verifyBtn.addEventListener('click', function() {
+      const enteredCode = otpInput.value.trim();
+      
+      if (!enteredCode) {
+        showError('Please enter the verification code');
+        return;
+      }
+      
+      if (enteredCode.length !== 6) {
+        showError('Please enter a 6-digit code');
+        return;
+      }
+      
+      verifyBtn.textContent = 'Verifying...';
+      verifyBtn.disabled = true;
+      
+      setTimeout(() => {
+        if (enteredCode === simulatedCode) {
+          showSuccess('Phone number verified successfully!');
+          
+          // Simulate successful login - redirect to main app
+          setTimeout(() => {
+            // In real implementation, you would redirect to your main app
+            // For now, we'll redirect to american.html as an example
+            window.location.href = 'american.html';
+          }, 1500);
+        } else {
+          showError('Invalid verification code. Please try again.');
+          verifyBtn.textContent = 'Continue';
+          verifyBtn.disabled = false;
+          otpInput.focus();
+        }
+      }, 1500);
+    });
+    
+    // Handle resend code
+    resendCode.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Generate new code
+      simulatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      // Update displayed code
+      displayedCode.textContent = simulatedCode;
+      
+      showSuccess(`New verification code sent to ${phoneNumberForVerification}`);
+      
+      otpInput.value = '';
+      otpInput.focus();
+    });
+    
+    // Format OTP input (only numbers)
+    otpInput.addEventListener('input', function(e) {
+      // Remove non-digits
+      let value = e.target.value.replace(/\D/g, '');
+      
+      // Limit to 6 digits
+      if (value.length > 6) {
+        value = value.substring(0, 6);
+      }
+      
+      e.target.value = value;
+      hideMessages();
+      
+      // Auto-verify when 6 digits are entered
+      if (value.length === 6) {
+        setTimeout(() => {
+          verifyBtn.click();
+        }, 500);
+      }
+    });
+    
+    // Auto-focus phone input
+    phoneNumber.focus();
+  </script>
+</body>
+</html>

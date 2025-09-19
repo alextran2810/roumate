@@ -5,43 +5,374 @@
   --border: #ccc;
 
   /* One content lane to rule them all (match your bars/charts) */
-  --lane: 500px;
+  --lane: 800px;
 }
+
+/* Theme: Light - clean white theme */
+body.theme-light {
+  background: #ffffff !important;
+  color: #1f2937;
+}
+body.theme-light .app-header,
+body.theme-light .app-footer {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #1f2937 !important;
+}
+body.theme-light .stats,
+body.theme-light .more-section {
+  background: rgba(248, 250, 252, 0.9) !important;
+  border-color: #e2e8f0 !important;
+  color: #1f2937 !important;
+}
+body.theme-light .history-log {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: #e2e8f0 !important;
+}
+body.theme-light .top-section {
+  background: rgba(248, 250, 252, 0.9) !important;
+  z-index: 15 !important;
+}
+body.theme-light .top-section * {
+  position: relative;
+  z-index: 16 !important;
+}
+body.theme-light .dialog {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #1f2937;
+}
+body.theme-light .dialog-overlay {
+  background: rgba(0, 0, 0, 0.5) !important;
+}
+body.theme-light .dialog-content {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #1f2937 !important;
+}
+body.theme-light .dialog-content h3 {
+  color: #1f2937 !important;
+}
+body.theme-light .dialog-actions button,
+body.theme-light #langDialog button,
+body.theme-light #testDialog button {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #1f2937 !important;
+}
+body.theme-light .dialog-actions button:hover,
+body.theme-light #langDialog button:hover,
+body.theme-light #testDialog button:hover {
+  background: #e2e8f0 !important;
+}
+body.theme-light #langDialog select,
+body.theme-light #testDialog select,
+body.theme-light .dialog select {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #1f2937 !important;
+}
+body.theme-light .social-btn {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #1f2937 !important;
+}
+body.theme-light .social-btn:hover {
+  background: #e2e8f0 !important;
+}
+body.theme-light .setting-group {
+  background: rgba(248, 250, 252, 0.3) !important;
+}
+body.theme-light .board-dialog {
+  background: #ffffff !important;
+}
+body.theme-light .dialog input,
+body.theme-light .dialog-content input {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #1f2937 !important;
+}
+body.theme-light .dialog input::placeholder,
+body.theme-light .dialog-content input::placeholder {
+  color: #6b7280 !important;
+}
+body.theme-light .special-buttons {
+  background: rgba(248, 250, 252, 0.95) !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+body.theme-light .btn-reset,
+body.theme-light .btn-view,
+body.theme-light .btn-voice,
+body.theme-light .btn-test {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: #1f2937 !important;
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
+}
+body.theme-light .btn-voice.active {
+  background: rgba(59, 130, 246, 0.9) !important;
+  color: white !important;
+  border: 1px solid rgba(59, 130, 246, 0.5) !important;
+}
+body.theme-light .btn-test.stop {
+  background: rgba(220, 38, 38, 0.9) !important;
+  color: white !important;
+  border: 1px solid rgba(220, 38, 38, 0.5) !important;
+}
+body.theme-light .special-buttons button:hover {
+  background: rgba(229, 231, 235, 0.9) !important;
+  border-color: rgba(0, 0, 0, 0.3) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+body.theme-light .btn-voice.active:hover {
+  background: rgba(37, 99, 235, 1) !important;
+}
+body.theme-light .btn-test.stop:hover {
+  background: rgba(185, 28, 28, 1) !important;
+}
+
+/* Theme: Dark (Dark Cyan) */
+body.theme-dark {
+  background: linear-gradient(135deg, #164e63, #0e7490) !important;
+  background-image: none !important;
+  color: #f1f5f9;
+}
+body.theme-dark .app-header {
+  background: rgba(15, 23, 42, 0.95) !important;
+}
+body.theme-dark .app-title {
+  background: linear-gradient(145deg, #f1f5f9, #cbd5e1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: white !important;
+}
+body.theme-dark .dialog,
+body.theme-dark .dialog *,
+body.theme-dark .dialog-content,
+body.theme-dark .dialog-content *,
+body.theme-dark #settingsDialog,
+body.theme-dark #settingsDialog * {
+  color: #f1f5f9 !important;
+}
+body.theme-dark .special-buttons {
+  background: rgba(15, 23, 42, 0.95) !important;
+}
+body.theme-dark .history-log {
+  background: rgba(71, 85, 105, 0.9) !important;
+  border-color: #334155 !important;
+}
+body.theme-dark .top-section {
+  background: transparent !important;
+  z-index: 15 !important;
+}
+body.theme-dark .top-section * {
+  position: relative;
+  z-index: 16 !important;
+}
+body.theme-dark .dialog {
+  background: rgba(30, 41, 59, 0.95) !important;
+  border-color: #475569 !important;
+  color: #f1f5f9;
+}
+body.theme-dark .dialog-overlay {
+  background: rgba(0, 0, 0, 0.7) !important;
+}
+body.theme-dark .dialog-content {
+  background: rgba(30, 41, 59, 0.95) !important;
+  border: 1px solid #475569 !important;
+  color: #f1f5f9 !important;
+}
+body.theme-dark .dialog-content h3 {
+  color: #f1f5f9 !important;
+}
+body.theme-dark .dialog-actions button,
+body.theme-dark #langDialog button,
+body.theme-dark #testDialog button {
+  background: rgba(51, 65, 85, 0.8) !important;
+  border-color: #475569 !important;
+  color: #f1f5f9 !important;
+}
+body.theme-dark .dialog-actions button:hover,
+body.theme-dark #langDialog button:hover,
+body.theme-dark #testDialog button:hover {
+  background: rgba(71, 85, 105, 0.9) !important;
+}
+
+/* Text size buttons in dark theme */
+body.theme-dark #btnTextSizeDown,
+body.theme-dark #btnTextSizeUp {
+  background: rgba(30, 41, 59, 0.95) !important;
+  color: #f1f5f9 !important;
+  border-color: #475569 !important;
+}
+
+body.theme-dark #btnTextSizeDown:hover,
+body.theme-dark #btnTextSizeUp:hover {
+  background: rgba(51, 65, 85, 0.8) !important;
+}
+
+body.theme-dark #langDialog select,
+body.theme-dark #testDialog select,
+body.theme-dark .dialog select {
+  background: rgba(51, 65, 85, 0.8) !important;
+  border-color: #475569 !important;
+  color: #f1f5f9 !important;
+}
+body.theme-dark .social-btn {
+  background: rgba(51, 65, 85, 0.8) !important;
+  border-color: #475569 !important;
+  color: #f1f5f9 !important;
+}
+body.theme-dark .social-btn:hover {
+  background: rgba(71, 85, 105, 0.9) !important;
+}
+body.theme-dark .board-dialog {
+  background: rgba(30, 41, 59, 0.95) !important;
+}
+body.theme-dark .dialog input,
+body.theme-dark .dialog-content input {
+  background: rgba(51, 65, 85, 0.8) !important;
+  border-color: #475569 !important;
+  color: #f1f5f9 !important;
+}
+body.theme-dark .dialog input::placeholder,
+body.theme-dark .dialog-content input::placeholder {
+  color: #94a3b8 !important;
+}
+body.theme-dark .setting-group {
+  background: rgba(51, 65, 85, 0.3) !important;
+}
+body.theme-dark .stats {
+  background: rgba(51, 65, 85, 0.2) !important;
+  border-radius: 12px;
+  padding: 16px;
+}
+body.theme-dark .more-section {
+  background: rgba(51, 65, 85, 0.2) !important;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 20px;
+}
+
+/* Dark theme table styling */
+body.theme-dark .combo-table,
+body.theme-dark .streak-table {
+  background: rgba(51, 65, 85, 0.6) !important;
+  border-color: #475569 !important;
+}
+body.theme-dark .combo-table th,
+body.theme-dark .streak-table th {
+  background: rgba(30, 41, 59, 0.8) !important;
+  color: #f1f5f9 !important;
+}
+body.theme-dark .combo-table tr:nth-child(even) td,
+body.theme-dark .streak-table tr:nth-child(even) td {
+  background: rgba(71, 85, 105, 0.4) !important;
+  color: #f1f5f9;
+}
+body.theme-dark .combo-table tr:nth-child(odd) td,
+body.theme-dark .streak-table tr:nth-child(odd) td {
+  background: rgba(51, 65, 85, 0.6) !important;
+  color: #f1f5f9;
+}
+
+/* Reduce brightness of bright colors in dark theme */
+body.theme-dark .number-item,
+body.theme-dark .history-log .number,
+body.theme-dark .numpad button,
+body.theme-dark canvas,
+body.theme-dark [style*="red"],
+body.theme-dark [style*="green"],
+body.theme-dark [style*="orange"],
+body.theme-dark [style*="blue"],
+body.theme-dark [style*="yellow"],
+body.theme-dark [style*="purple"],
+body.theme-dark [style*="#"] {
+  filter: brightness(0.6) !important;
+}
+
+/* Handle black colors specifically in dark theme */
+body.theme-dark [style*="black"],
+body.theme-dark .numpad button[style*="black"] {
+  filter: brightness(1.8) saturate(0.7) !important;
+}
+
+/* Dim bar segments and their text specifically in dark theme */
+body.theme-dark .bar-segment {
+  filter: brightness(0.5) !important;
+}
+
+/* Dim text on black backgrounds in dark theme */
+body.theme-dark .combo-table th,
+body.theme-dark .streak-table th,
+body.theme-dark [style*="background: black"],
+body.theme-dark [style*="background:black"],
+body.theme-dark [style*="background-color: black"],
+body.theme-dark [style*="background-color:black"] {
+  filter: brightness(0.5) !important;
+}
+
+/* Theme: Default keeps existing background image */
 
 * { box-sizing: border-box; }
 
-html, body { margin: 0; padding: 0; height: 100%; }
+html, body { 
+  margin: 0; 
+  padding: 0; 
+  overflow-x: hidden; /* prevent horizontal scroll */
+}
 
 body {
   font-family: Arial, sans-serif;
-  padding: 10px;
-  width: 100vw;
-  max-width: 100vw;
+  padding: 0;
+  padding-top: 64px;
+  margin-top: 10px; /* body margin top */
+  margin-bottom: 60px; /* body content margin bottom  */
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden; /* prevent horizontal scrollbar */
   background: url("background.jpg") no-repeat center center fixed;
   background-size: cover;
   color: var(--ink);
-  display: flex;
-  flex-direction: column;
 }
 
-/* ---------- Top / Scroll Sections ---------- */
+/* ---------- Top / Scroll Sections ---.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: 48px 1fr 48px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0px;
+  background: rgba(128,128,128,0.85);
+  backdrop-filter: blur(6px);
+  z-index: 10;
+  width: 100%;
+  margin: 0;
+}
+
 .top-section {
   flex: 0 0 auto;
   position: sticky;
-  top: 0;
+  top: 64px;
   background: #f5f5f5;
   z-index: 10;
-  padding: 8px 10px;
+  padding: 12px 0px;
+  margin: 8px 0 0 0;
   border-bottom: 1px solid #ccc;
 }
 
 .scroll-section {
   flex: 1 1 auto;
   overflow-y: auto;
-  padding: 8px 10px;
-  padding-bottom: 70px; /* room for fixed buttons */
+  padding: 12px 0px;
+  margin: 0;
+  padding-bottom: 100px; /* footer height + buffer 
 }
-
+*/
 /* ---------- Headings ---------- */
 h1 {
   font-size: 24px;
@@ -56,7 +387,7 @@ h1 {
   font-weight: bold;
   margin: 0 0 12px;
   color: black;
-  margin-top: 25x;
+  margin-top: 25px;
 }
 
 /* ---------- Center Column ---------- */
@@ -66,25 +397,36 @@ h1 {
   align-items: center;
   gap: 18px;
   width: 100%;
-  max-width: 100vw;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 /* ---------- History ---------- */
-.history-container { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.history-container { 
+  width: 100%; /* full width like the bars */
+  max-width: var(--lane);
+  margin: 0;
+  position: relative;
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  gap: 6px; 
+}
 
 .history-log {
   display: flex;
   overflow-x: auto;
-  gap: 6px;
-  background: lightgrey;
+  gap: 3px; /* reduced gap to bring numbers closer */
+  background: #f5f5f5;
   padding: 6px;
   border: 3px solid black;
   border-radius: 8px;
   min-height: 32px;
   width: 100%;
   max-width: var(--lane);
-  margin: 0 auto;
   box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  box-sizing: border-box;
 }
 .history-log.empty::before {
   content: "Start entering numbers to see history";
@@ -97,15 +439,14 @@ h1 {
   width: 100%;
 }
 .history-log div {
-  padding: 6px 10px;
-
-  margin: 3px;
-  border-radius: 0;
+  padding: 4px 8px; /* reduced padding */
+  margin: 2px; /* reduced margin */
+  border-radius: 8px; /* added rounded corners */
   font-weight: bold;
   font-size: 13px;
   color: #fff;
   flex: 0 0 auto;
-  min-width: 32px;
+  min-width: 28px; /* reduced min-width */
   text-align: center;
   border: none;
   cursor: pointer; /* last chip is removable; cursor indicates interactivity */
@@ -117,9 +458,9 @@ h1 {
 .numpad-container {
   display: grid;
   gap: 4px;
-  width: 100%;
+  width: 100%; /* full width like the bars */
   max-width: var(--lane);
-  margin: 0 auto;
+  margin: 0;
   grid-template-columns: repeat(13, 1fr);
   background: transparent;
 }
@@ -140,11 +481,12 @@ h1 {
   display: grid;
   grid-template-columns: 1fr auto; /* title grows, slider stays compact */
   align-items: center;
-  gap: 10px;  align-items: center;
+  gap: 10px;  
+  align-items: center;
   flex-wrap: nowrap;
-  width: 100%;
+  width: 100%; /* full width like the bars */
   max-width: var(--lane);
-  margin: 0 auto;
+  margin: 0;
 }
 .stats-header h3 {
   font-weight: bold;
@@ -153,9 +495,15 @@ h1 {
 white-space: nowrap;   /* single line */
   overflow: hidden;      /* hide any accidental overflow */
   text-overflow: ellipsis;
-  font-size: 14px;       /* max size; JS will shrink */
+  font-size: calc(14px * var(--app-text-scale));       /* responsive size with scaling */
+  color: black;
 }
-#rangeSlider { width: 100px; flex: 0 0 auto; vertical-align: middle; }
+#rangeSlider { 
+  width: 60px; 
+  flex: 0 0 auto; 
+  vertical-align: middle; 
+  accent-color: black;
+}
 
 /* ---------- Stats & Bars ---------- */
 .stats {
@@ -167,6 +515,16 @@ white-space: nowrap;   /* single line */
   max-width: var(--lane);
   margin-left: auto;
   margin-right: auto;
+  padding: 0;
+}
+
+/* Simple consistent margins for all body content */
+.top-section,
+.scroll-section {
+  margin-left: 12px !important;
+  margin-right: 12px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 .bar-container {
@@ -202,10 +560,10 @@ canvas {
   background: var(--card);
   border: 1px solid var(--border);
   display: block;
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
   width: 100% !important;
-  max-width: var(--lane);
+  max-width: 100%;
   height: auto !important;
   border-radius: 6px;
 }
@@ -272,7 +630,7 @@ canvas {
 .combo-table td:nth-child(2) {
   width: 1%;                   /* hint: as small as possible */
   white-space: nowrap;         /* prevent wrapping so it stays narrow */
-  text-align: middle;           /* nicer for numbers */
+  text-align: center;           /* nicer for numbers */
 }
 
 
@@ -287,36 +645,54 @@ canvas {
 .special-buttons {
   position: fixed;
   bottom: 0; left: 0; width: 100%;
-  background: rgba(245, 245, 245, 0.95);
-  backdrop-filter: blur(6px);
-  border-top: 1px solid #ccc;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: center;
-  gap: 8px;
-  padding: 8px;
-  z-index: 100;
+  gap: 12px;
+  padding: 12px 16px;
+  z-index: 50;
   box-sizing: border-box;
+  /* Auto height - no fixed height */
 }
 .special-buttons button {
-  flex: 0 1 auto; /* shrink to content but allow slight grow if needed */
-  min-width: 72px;
-  padding: 6px 10px;
-  font-size: 12px;
-  border-radius: 6px;
+  flex: 0 1 auto;
+  min-width: 60px;
+  padding: 10px 16px;
+  font-size: 0.75rem !important;
+  border-radius: 12px;
   border: none;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.btn-reset { background: #50E3C2; color: black; }
-.btn-view  { background: #50E3C2; color: black; }
-.btn-voice { background: #50E3C2; color: black; }
-.btn-voice.active { background: #50E3C2; color: white; }
-.btn-test { background: #50E3C2; color: black; font-weight: bold; }
-.btn-test.stop { background: red !important; color: white !important; }
+/* Hover effects for special buttons */
+.special-buttons button:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+.btn-voice.active:hover {
+  background: rgba(255, 255, 255, 1) !important;
+}
+.btn-test.stop:hover {
+  background: rgba(239, 68, 68, 1) !important;
+}
+
+.btn-reset { background: rgba(0, 0, 0, 0.6); color: white; border: 1px solid rgba(255, 255, 255, 0.3); }
+.btn-view  { background: rgba(0, 0, 0, 0.6); color: white; border: 1px solid rgba(255, 255, 255, 0.3); }
+.btn-voice { background: rgba(0, 0, 0, 0.6); color: white; border: 1px solid rgba(255, 255, 255, 0.3); }
+.btn-voice.active { background: rgba(255, 255, 255, 0.9); color: black; border: 1px solid rgba(0, 0, 0, 0.3); }
+.btn-test { background: rgba(0, 0, 0, 0.6); color: white; font-weight: bold; border: 1px solid rgba(255, 255, 255, 0.3); }
+.btn-test.stop { background: rgba(220, 38, 38, 0.9) !important; color: white !important; border: 1px solid rgba(255, 255, 255, 0.5) !important; }
 
 /* Make Reset & Run Test a bit smaller than others */
 .btn-reset, .btn-test { padding: 5px 8px; min-width: 66px; }
@@ -355,7 +731,7 @@ canvas {
 }
 .dialog-actions button, #langDialog button {
   padding: 6px 10px;
-  border-radius: 4px;.
+  border-radius: 4px;
   border: 1px solid #ddd;
   background: #fafafa;
   cursor: pointer;
@@ -391,9 +767,87 @@ canvas {
 
   /* let the slider fit without forcing a wrap */
   #rangeSlider {
-    width: clamp(90px, 34vw, 150px);
+    width: clamp(50px, 25vw, 80px);
     min-width: 0;
     flex: 0 0 auto;
+    accent-color: black;
+  }
+}
+
+/* ---------- Additional Responsive Design ---------- */
+/* Extra small screens */
+@media (max-width: 320px) {
+  body {
+    margin-top: 5px;
+    padding-top: 60px;
+  }
+  
+  .main-center {
+    margin: 0 8px;
+    gap: 12px;
+  }
+  
+  .numpad-container {
+    gap: 2px;
+    grid-template-columns: repeat(13, minmax(12px, 1fr));
+  }
+}
+
+/* Small screens */
+@media (max-width: 400px) {
+  .main-center {
+    margin: 0 10px;
+    gap: 15px;
+  }
+  
+  .numpad-container {
+    gap: 3px;
+    grid-template-columns: repeat(13, minmax(14px, 1fr));
+  }
+}
+
+/* Medium screens and tablets */
+@media (min-width: 601px) and (max-width: 1024px) {
+  .main-center {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .numpad-container,
+  .history-container,
+  .stats-header {
+    max-width: 800px;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1025px) {
+  .main-center {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  .numpad-container,
+  .history-container,
+  .stats-header {
+    max-width: 1000px;
+  }
+  
+  body {
+    padding-top: 70px;
+  }
+}
+
+/* Landscape orientation on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  body {
+    padding-top: 50px;
+    margin-top: 5px;
+    margin-bottom: 50px;
+  }
+  
+  .main-center {
+    gap: 10px;
   }
 }
 
@@ -433,6 +887,19 @@ canvas {
   100% { transform: scale(1);    filter: brightness(1)   saturate(1);   }
 }
 
+/* Bar segment highlighting animation */
+@keyframes barHighlight {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.8); transform: scale(1); }
+  50%  { box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.4); transform: scale(1.02); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); transform: scale(1); }
+}
+
+.bar-segment.highlight {
+  animation: barHighlight 1.5s ease-out;
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  z-index: 10;
+  position: relative;
+}
 
 /* Seamless percentage bars (no white lines) */
 .bar-container{
@@ -481,6 +948,7 @@ canvas {
   overflow: hidden;
   font-size: 13px;              /* smaller overall text */
   line-height: 1.15;            /* tighter line height */
+  margin-bottom: 50px;          /* extra space above footer */
 }
 
 .streak-table th{
@@ -534,3 +1002,511 @@ canvas {
 .combo-table + h3 {
   margin-top: 10px;        /* gentle top margin for the title */
 }
+
+/* Make specific section headers bigger */
+.more-section h3:first-of-type {
+  font-size: calc(18px * var(--app-text-scale)) !important;
+  font-weight: bold;
+}
+
+/* Target the streak header that comes after combo table */
+.combo-table + h3,
+.more-section h3:last-of-type {
+  font-size: calc(17px * var(--app-text-scale)) !important;
+  font-weight: bold;
+}
+
+/* Make sure Statistics header responds to text scaling */
+.stats-header h3 {
+  font-size: calc(16px * var(--app-text-scale)) !important;
+}
+
+
+/* ===== Modern Mobile Header ===== */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: 52px 1fr 52px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  z-index: 20;
+  color: white;
+}
+.app-title {
+  margin: 0;
+  text-align: center;
+  font-size: 26px;
+  font-weight: 900;
+  background: linear-gradient(145deg, #1f2937, #374151);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: black;
+}
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: rgba(243, 244, 246, 0.8);
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-btn:hover {
+  background: rgba(229, 231, 235, 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.icon-btn:active { transform: translateY(1px); }
+
+.dialog::backdrop { background: rgba(0,0,0,.35); }
+.dialog { border: none; border-radius: 14px; padding: 16px; max-width: 520px; width: 92vw; }
+.dialog h3 { margin: 0 0 10px 0; text-align: center; }
+.dialog-actions { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
+
+.board-dialog img { width: 100%; height: auto; border-radius: 8px; }
+
+/* Account */
+.auth-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.social-btn { padding: 10px; border-radius: 10px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.primary { background: #0b74ff; color: #fff; border: none; padding: 10px 12px; border-radius: 8px; cursor: pointer; }
+.mt8 { margin-top: 8px; }
+.profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.profile-grid label { font-size: 12px; color: #666; display:block; }
+.profile-grid input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 8px; }
+.account-actions { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.account-actions .danger { background: #e74c3c; color: #fff; border: none; padding: 8px 10px; border-radius: 8px; }
+.flex-grow { flex: 1 1 auto; }
+.sep { text-align: center; color: #777; margin: 8px 0; }
+
+/* Settings */
+.setting-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; }
+
+.setting-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 0;
+  margin: 8px 0;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.03);
+  padding: 16px;
+}
+
+.setting-row-left {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+.seg { display: inline-flex; gap: 4px; }
+.seg > button { padding: 8px 10px; border: 1px solid #ddd; border-radius: 8px; background: #fff; cursor: pointer; }
+
+/* Modern Switch control */
+.switch { position: relative; display: inline-flex; align-items: center; gap: 12px; cursor: pointer; }
+.switch input { display:none; }
+.switch .slider {
+  position: relative; width: 52px; height: 30px; background: #e5e7eb; border-radius: 30px;
+  transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.switch .slider::after {
+  content:"⚪"; position: absolute; top: 2px; left: 2px; width: 26px; height: 26px;
+  background: linear-gradient(145deg, #ffffff, #f3f4f6); border-radius: 50%; 
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: #6b7280;
+}
+.switch input:checked + .slider { 
+  background: linear-gradient(145deg, #3b82f6, #1d4ed8);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+.switch input:checked + .slider::after { 
+  transform: translateX(22px);
+  content: "⚡";
+  color: #fbbf24;
+}
+.switch .switch-label { font-size: 14px; color: #374151; font-weight: 500; }
+
+/* Theme selector */
+.theme-label {
+  font-size: 14px;
+  color: #374151;
+  font-weight: 500;
+}
+.theme-select {
+  padding: 8px 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 160px;
+  flex: 1;
+}
+.theme-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Help marks */
+.help-qs {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 50%;
+  font-weight: 700; font-size: 12px;
+  color: #fff; background: #333; cursor: pointer;
+  vertical-align: middle; margin-left: 6px;
+}
+.help-qs.hidden { display: none !important; }
+
+/* Text scale */
+:root { --app-text-scale: 1; }
+body { font-size: calc(16px * var(--app-text-scale)); }
+.app-header .app-title { font-size: 20px; } /* keep header title fixed */
+
+/* Center streaks table + look like combo table */
+.streaks-table { margin: 10px auto; border-collapse: collapse; }
+.streaks-table th, .streaks-table td { border: 1px solid #ddd; padding: 6px 8px; text-align: center; }
+.streaks-table th { background: #f5f5f5; }
+
+/* Ensure percent bars clickable */
+[data-board-popup], .cols-percent-bar, .dozens-percent-bar { pointer-events: auto; }
+
+/* v3 updates */
+/* Keep header & footer font sizes stable; scale only content */
+.app-header, .app-header * { font-size: unset; }
+ /* footer-style buttons often live here */
+
+/* Streaks header black */
+.streaks-table th { background: #000; color: #fff; }
+
+/* Space under charts */
+canvas { margin-bottom: 16px; }
+.chart, .chart-container, .chart-wrap { margin-bottom: 16px; }
+
+/* v4 updates */
+/* American [switch] European layout */
+.setting-variant { gap: 16px; justify-content: center; }
+.switch-side { font-size: 14px; color: #333; }
+
+/* Keep header/footer fixed size, content scales */
+.app-header, .app-header * { font-size: unset !important; }
+
+
+/* Slider help positioning (to the right of its label/track) */
+.slider-label, label[for='slider'] { display: inline-flex; align-items: center; gap: 6px; }
+#slider + .help-qs { margin-left: 8px; }
+
+/* Remove any accidental help bubble in settings */
+#settingsDialog .help-qs { display: none !important; }
+
+/* v5 updates */
+/* Variant row aligned left */
+.setting-variant.left { justify-content: flex-start; }
+
+/* Broader text scaling across content (exclude header/footer) */
+:root { --app-text-scale: var(--app-text-scale, 1); }
+body { font-size: calc(16px * var(--app-text-scale)); }
+/* Apply scaling to all body content except header and footer */
+body *:not(.app-header):not(.app-header *):not(.special-buttons):not(.special-buttons *) {
+  font-size: inherit;
+}
+/* Specifically include key content areas */
+.history-log, .history-log *,
+.stats, .stats *,
+.bar-segment, .bar-segment *,
+.number-grid, .number-grid *,
+.more-section, .more-section *,
+h1, h3, p, span, div:not(.app-header):not(.special-buttons) {
+  font-size: calc(1em * var(--app-text-scale)) !important;
+}
+/* Include popup dialogs in scaling */
+.dialog, .dialog *, .dialog-content, .dialog-content *, 
+.dialog-overlay, .dialog-overlay * {
+  font-size: calc(1em * var(--app-text-scale)) !important;
+}
+/* Inputs/buttons scale too (except footer) */
+input:not(.app-header *):not(.special-buttons *), 
+select:not(.app-header *):not(.special-buttons *), 
+button:not(.app-header *):not(.special-buttons *), 
+label:not(.app-header *):not(.special-buttons *), 
+table:not(.app-header *):not(.special-buttons *) { 
+  font-size: calc(1em * var(--app-text-scale)) !important; 
+}
+
+/* Ensure the first bars capture clicks */
+#colsPercentContainer > *,
+#dozensPercentContainer > * {
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* v6: smaller Settings dialog */
+#settingsDialog { max-width: 440px; }
+
+/* v6: Special buttons maintain fixed size for consistency */
+
+
+/* === Narrow header/footer to content lane === */
+.app-header { width: 100% !important; margin: 0 !important; max-width: none !important; }
+.special-buttons { left: 50% !important; transform: translateX(-50%) !important; width: min(100%, var(--lane)) !important; }
+
+/* Header title color matches special buttons (#50E3C2) */
+.app-title { color: #50E3C2; }
+
+
+/* === Header width & style aligned to content lane === */
+.app-header {
+  max-width: var(--lane);
+  margin: 0 auto;
+  background: var(--low-color, #2980b9); /* match Low segment color */
+}
+.app-title { color: #000; } /* header label text black */
+
+/* Make emoji icon size fit better & buttons slightly smaller */
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px; /* make the emoji icon larger */
+  background: #fff;
+}
+
+/* === Footer perfectly centered to lane === */
+.special-buttons {
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+  width: min(100vw, var(--lane));
+  background: var(--low-color, #2980b9); /* match Low segment color */
+}
+
+/* Ensure stats header, history log, and numpad share same lane alignment */
+.stats-header,
+.history-log,
+.numpad-container {
+  max-width: var(--lane);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+/* === Global text scaling improvement === */
+:root { --app-text-scale: var(--app-text-scale, 1); } /* keep existing if set */
+html { font-size: calc(16px * var(--app-text-scale)); }
+/* Scale common UI elements that had fixed px to follow the base size */
+.app-header, .app-title, .stats-header h3, .history-log, .bar-segment,
+table, th, td, button, input, select, .dialog, .special-buttons button, .numpad-container button {
+  font-size: 1rem;
+}
+
+/* === Header width & color aligned with scroll section (add gutters) === */
+:root { --gutter: 10px; }
+.app-header {
+  max-width: calc(var(--lane) + (2 * var(--gutter)));
+  margin: 0 auto;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+  background: var(--low-color, #2980b9); /* Low segment color */
+}
+.app-title { color: #000; } /* header label text black */
+
+/* Icon buttons: slightly smaller button, bigger glyph */
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px; /* emoji/icon size */
+  background: #fff;
+}
+
+/* === Footer perfectly centered and matched to scroll width (with gutters) === */
+.special-buttons {
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(min(100vw, var(--lane)) + (2 * var(--gutter)));
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+  background: var(--low-color, #2980b9); /* Low segment color */
+}
+
+/* === Align history container to the same width behavior as scroll section === */
+.history-container {
+  max-width: calc(var(--lane) + (2 * var(--gutter)));
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+}
+.history-log {
+  max-width: var(--lane);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Ensure these sections share the same lane behavior */
+.stats-header,
+.numpad-container {
+  max-width: var(--lane);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+/* === Layout: 800px lane, centered with gutters === */
+.top-section,
+.scroll-section {
+  max-width: calc(var(--lane) + (2 * var(--gutter)));
+  margin: 0 auto;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+}
+
+/* Header matches lane & uses Low color */
+.app-header {
+  max-width: calc(var(--lane) + (2 * var(--gutter)));
+  margin: 0 auto;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+  background: var(--low-color, #2980b9); /* Low segment color */
+}
+
+/* Footer centered to lane & uses Low color */
+.special-buttons {
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(min(100vw, var(--lane)) + (2 * var(--gutter)));
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+  background: var(--low-color, #2980b9); /* Low segment color */
+}
+
+/* History container aligns to lane */
+.history-container {
+  max-width: calc(var(--lane) + (2 * var(--gutter)));
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+}
+.history-log,
+.stats-header,
+.numpad-container {
+  max-width: var(--lane);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+/* === Global text scaling === */
+:root { --app-text-scale: var(--app-text-scale, 1); }
+html { font-size: calc(16px * var(--app-text-scale)); }
+
+/* Normalize common UI to respond to root font-size */
+.app-title,
+.stats-header h3,
+.history-log,
+.bar-segment,
+table, th, td,
+button, input, select, textarea, label,
+.numpad-container button,
+.special-buttons button,
+.dialog, .dialog *,
+h1, h2, h3, h4, h5, h6,
+p, li, small, .help-qs {
+  font-size: 1rem;
+}
+
+/* Tweak icon button sizing so emoji/icon grows with scale */
+.icon-btn { width: 2.25rem; height: 2.25rem; font-size: 1.375rem; }
+.special-buttons button { font-size: 0.75rem !important; }
+.bar-segment { font-size: 0.9rem; }
+
+
+/* === Enforce Low-color sync for header/footer === */
+:root { --low-color: #2980b9; } /* default; JS will update dynamically */
+.app-header { background: var(--low-color) !important; }
+.special-buttons { background: var(--low-color) !important; }
+
+
+/* === Stronger global text scaling === */
+:root { --app-text-scale: var(--app-text-scale, 1); }
+html { font-size: calc(16px * var(--app-text-scale)); }
+body,
+.app-header,
+.special-buttons,
+.top-section,
+.scroll-section,
+.main-center,
+.history-container,
+.history-log,
+.stats-header h3,
+.bar-segment,
+.numpad-container,
+.numpad-container button,
+.dialog, .dialog *,
+table, th, td,
+button, input, select, textarea, label,
+h1, h2, h3, h4, h5, h6,
+p, li, small, .help-qs {
+  font-size: 1rem;
+}
+
+/* Icon size scales with text */
+.icon-btn { width: 2.25rem; height: 2.25rem; font-size: 1.375rem; }
+.special-buttons button { font-size: 0.75rem; }
+.bar-segment { font-size: 0.9rem; }
+
+
+/* ===== Global Text Scaling (applies to ALL text) ===== */
+:root { --app-text-scale: var(--app-text-scale, 1); }
+html { font-size: calc(16px * var(--app-text-scale)); line-height: 1.4; }
+body { font-size: 1rem; }
+/* Force all descendants to inherit the scaled font size */
+*, *::before, *::after { font-size: inherit !important; }
+/* Maintain heading hierarchy (still scales with root) */
+h1 { font-size: 1.75rem !important; }
+h2 { font-size: 1.375rem !important; }
+h3 { font-size: 1.125rem !important; }
+/* Common UI tweaks that should remain readable */
+.icon-btn { width: 2.25rem; height: 2.25rem; font-size: 1.375rem !important; }
+.special-buttons button { font-size: 0.75rem !important; }
+.bar-segment { font-size: 0.95rem !important; }
+
+
+/* ===== Global Text Scaling (definitive) ===== */
+:root { --app-text-scale: 1; }
+html { font-size: calc(16px * var(--app-text-scale)); line-height: 1.4; }
+body { font-size: 1rem; }
+/* Force inheritance so any px declarations earlier are overridden */
+*, *::before, *::after { font-size: inherit !important; }
+
+/* Remove all margin from app header */
+.app-header {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
