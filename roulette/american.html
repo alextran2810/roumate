@@ -30,6 +30,20 @@
   <!-- If signed OUT: show sign in/up -->
   <div id="authPanel">
     <p>You are already signed in with phone authentication</p>
+    
+    <!-- Subscription Information -->
+    <div class="subscription-info" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; padding: 16px; margin: 16px 0; color: #065f46;">
+      <div class="status" style="font-weight: bold; font-size: 18px; margin-bottom: 8px;" id="subscriptionStatus">
+        Free Subscription
+      </div>
+      <div class="details" style="font-size: 14px; opacity: 0.8;" id="subscriptionDetails">
+        10 spins remaining
+      </div>
+      <button id="btnManageSubscription" style="width: 100%; padding: 10px; margin-top: 12px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer;">
+        Manage Subscription
+      </button>
+    </div>
+    
     <div class="account-actions" style="margin-top: 16px;">
       <button id="btnSignOut" class="danger" style="width: 100%; padding: 12px; background: #dc3545; color: white; border: none; border-radius: 8px; cursor: pointer;">
         Sign out
@@ -45,9 +59,23 @@
         <input id="pfPhone" disabled />
       </div>
     </div>
+    
+    <!-- Subscription Information for Profile Panel -->
+    <div class="subscription-info" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; padding: 16px; margin: 16px 0; color: #065f46;">
+      <div class="status" style="font-weight: bold; font-size: 18px; margin-bottom: 8px;" id="subscriptionStatusProfile">
+        Free Subscription
+      </div>
+      <div class="details" style="font-size: 14px; opacity: 0.8;" id="subscriptionDetailsProfile">
+        10 spins remaining
+      </div>
+      <button id="btnManageSubscriptionProfile" style="width: 100%; padding: 10px; margin-top: 12px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer;">
+        Manage Subscription
+      </button>
+    </div>
+    
     <div class="account-actions">
       <span class="flex-grow"></span>
-      <button id="btnSignOut" class="danger" style="width: 100%; padding: 12px; background: #dc3545; color: white; border: none; border-radius: 8px; cursor: pointer;">
+      <button id="btnSignOutProfile" class="danger" style="width: 100%; padding: 12px; background: #dc3545; color: white; border: none; border-radius: 8px; cursor: pointer;">
         Sign out
       </button>
     </div>
@@ -139,6 +167,16 @@
   <img id="boardImg" src="roulette_board.jpg" alt="Roulette Board" />
   <div class="dialog-actions center">
     <button data-close-dialog>Close</button>
+  </div>
+</dialog>
+
+<!-- Confirmation Dialog -->
+<dialog id="confirmDialog" class="dialog">
+  <h3 id="confirmTitle">Confirm</h3>
+  <p id="confirmMessage">Are you sure?</p>
+  <div class="dialog-actions center">
+    <button id="confirmOk" class="primary">OK</button>
+    <button id="confirmCancel">Cancel</button>
   </div>
 </dialog>
 

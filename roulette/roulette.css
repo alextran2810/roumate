@@ -1498,6 +1498,340 @@ h3 { font-size: 1.125rem !important; }
 
 
 /* ===== Global Text Scaling (definitive) ===== */
+
+/* ===== Subscription Modals & Toast ===== */
+.subscription-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+}
+
+.subscription-modal-content {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  width: 95vw;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.subscription-modal .profile-required-content {
+  max-width: 480px;
+  text-align: left;
+}
+
+.subscription-modal .upgrade-required-content {
+  max-width: 600px;
+}
+
+.subscription-modal h3 {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.subscription-modal p {
+  margin: 12px 0;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.subscription-modal .usage-info {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 16px 0;
+  color: #1e40af;
+}
+
+.subscription-modal .pricing-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.subscription-modal .pricing-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.subscription-modal .pricing-option:hover,
+.subscription-modal .pricing-option.selected {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.subscription-modal .pricing-option .duration {
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.subscription-modal .pricing-option .price {
+  font-weight: bold;
+  color: #3b82f6;
+  font-size: 18px;
+}
+
+.subscription-modal .modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  justify-content: center;
+}
+
+.subscription-modal .modal-actions button {
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  min-width: 100px;
+}
+
+.subscription-modal .btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.subscription-modal .btn-primary:hover {
+  background: #2563eb;
+}
+
+.subscription-modal .btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.subscription-modal .btn-secondary:hover {
+  background: #e5e7eb;
+}
+
+.subscription-modal .btn-danger {
+  background: #ef4444;
+  color: white;
+}
+
+.subscription-modal .btn-danger:hover {
+  background: #dc2626;
+}
+
+.subscription-modal .btn-success {
+  background: #10b981;
+  color: white;
+}
+
+.subscription-modal .btn-success:hover {
+  background: #059669;
+}
+
+.subscription-modal .profile-form,
+.subscription-modal .subscription-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.subscription-modal .profile-form input,
+.subscription-modal .subscription-modal-form input {
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.subscription-modal .profile-form input:focus,
+.subscription-modal .subscription-modal-form input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.subscription-modal .subscription-modal-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.subscription-modal .subscription-modal-form label {
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+.subscription-modal .subscription-info {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+  color: #065f46;
+}
+
+.subscription-modal .subscription-info .status {
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.subscription-modal .subscription-info .details {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.toast {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  z-index: 1200;
+  animation: toastIn 0.3s ease-out;
+}
+
+.toast.success {
+  background: rgba(16, 185, 129, 0.9);
+}
+
+.toast.error {
+  background: rgba(239, 68, 68, 0.9);
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Dark theme for subscription modals */
+body.theme-dark .subscription-modal-content {
+  background: rgba(30, 41, 59, 0.95);
+  color: #f1f5f9;
+}
+
+body.theme-dark .subscription-modal h3 {
+  color: #f1f5f9;
+}
+
+body.theme-dark .subscription-modal p {
+  color: #cbd5e1;
+}
+
+body.theme-dark .subscription-modal .pricing-option {
+  border-color: #475569;
+  background: rgba(51, 65, 85, 0.3);
+}
+
+body.theme-dark .subscription-modal .pricing-option:hover,
+body.theme-dark .subscription-modal .pricing-option.selected {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.15);
+}
+
+body.theme-dark .subscription-modal .pricing-option .duration {
+  color: #f1f5f9;
+}
+
+body.theme-dark .subscription-modal .btn-secondary {
+  background: rgba(51, 65, 85, 0.8);
+  color: #f1f5f9;
+  border-color: #475569;
+}
+
+body.theme-dark .subscription-modal .btn-secondary:hover {
+  background: rgba(71, 85, 105, 0.9);
+}
+
+body.theme-dark .subscription-modal .profile-form input,
+body.theme-dark .subscription-modal .subscription-modal-form input {
+  background: rgba(51, 65, 85, 0.8);
+  border-color: #475569;
+  color: #f1f5f9;
+}
+
+body.theme-dark .subscription-modal .profile-form input::placeholder,
+body.theme-dark .subscription-modal .subscription-modal-form input::placeholder {
+  color: #94a3b8;
+}
+
+body.theme-dark .subscription-modal .subscription-modal-form label {
+  color: #f1f5f9;
+}
+
+/* Light theme for subscription modals */
+body.theme-light .subscription-modal-content {
+  background: #ffffff;
+  color: #1f2937;
+}
+
+body.theme-light .subscription-modal h3 {
+  color: #1f2937;
+}
+
+body.theme-light .subscription-modal p {
+  color: #6b7280;
+}
+
+body.theme-light .subscription-modal .pricing-option {
+  border-color: #e2e8f0;
+  background: #f8fafc;
+}
+
+body.theme-light .subscription-modal .pricing-option:hover,
+body.theme-light .subscription-modal .pricing-option.selected {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+
+body.theme-light .subscription-modal .btn-secondary {
+  background: #f8fafc;
+  color: #1f2937;
+  border-color: #e2e8f0;
+}
+
+body.theme-light .subscription-modal .btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+body.theme-light .subscription-modal .subscription-modal-form input {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #1f2937;
+}
+
+body.theme-light .subscription-modal .subscription-modal-form input::placeholder {
+  color: #9ca3af;
+}
+
+body.theme-light .subscription-modal .subscription-modal-form label {
+  color: #1f2937;
+}
 :root { --app-text-scale: 1; }
 html { font-size: calc(16px * var(--app-text-scale)); line-height: 1.4; }
 body { font-size: 1rem; }
@@ -1508,5 +1842,508 @@ body { font-size: 1rem; }
 .app-header {
   margin-left: 0 !important;
   margin-right: 0 !important;
+}
+
+/* ===== Modern Upgrade Modal Styles ===== */
+.modern-modal-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.modern-modal-header .header-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  color: white;
+}
+
+.modern-modal-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.5px;
+}
+
+.modern-modal-header .header-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.modern-subscription-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.subscription-card {
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.subscription-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.subscription-card:hover::before {
+  opacity: 1;
+}
+
+.subscription-card:hover {
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
+}
+
+.subscription-card.popular {
+  border-color: #667eea;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  transform: scale(1.02);
+}
+
+.subscription-card.popular::before {
+  opacity: 1;
+}
+
+.subscription-card.free-option {
+  border-color: #10b981;
+}
+
+.subscription-card.free-option::before {
+  background: linear-gradient(90deg, #10b981, #059669);
+}
+
+.subscription-card.free-option:hover {
+  border-color: #10b981;
+  box-shadow: 0 12px 32px rgba(16, 185, 129, 0.15);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.plan-icon {
+  font-size: 18px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 8px;
+}
+
+.subscription-card.free-option .plan-icon {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.plan-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.plan-badge.free {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.plan-badge.popular {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.plan-badge.value {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.plan-badge.premium {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+
+.subscription-card h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 10px 0;
+}
+
+.plan-price {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.plan-price .currency {
+  font-size: 16px;
+  color: #6b7280;
+  margin-right: 2px;
+}
+
+.plan-price .amount {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.plan-price .period {
+  font-size: 12px;
+  color: #6b7280;
+  margin-left: 4px;
+}
+
+.plan-benefits {
+  text-align: left;
+  margin-bottom: 16px;
+}
+
+.benefit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #4b5563;
+  line-height: 1.3;
+}
+
+.benefit svg {
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+.plan-button {
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.free-button {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.free-button:hover {
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+}
+
+.premium-button {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+}
+
+.premium-button:hover {
+  background: linear-gradient(135deg, #5a67d8, #6b46c1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+}
+
+.modern-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.security-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.security-note svg {
+  color: #10b981;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #6b7280;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-ghost:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .modern-subscription-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .subscription-card.popular {
+    transform: none;
+  }
+  
+  .modern-modal-footer {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .subscription-modal-content {
+    width: 95vw;
+    max-width: none;
+    padding: 20px;
+  }
+}
+
+/* ===== Compact 2x2 Upgrade Modal Styles ===== */
+.compact-modal-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.compact-modal-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+.compact-modal-header p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 12px;
+  margin: 20px 0;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.plan-card {
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 140px;
+}
+
+.plan-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.plan-card.free {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #10b981;
+}
+
+.plan-card.free:hover {
+  border-color: #059669;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+}
+
+.plan-card.premium {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-color: #3b82f6;
+}
+
+.plan-card.premium:hover {
+  border-color: #2563eb;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
+}
+
+.plan-card.popular {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-color: #3b82f6;
+  border-width: 3px;
+}
+
+.plan-badge {
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #3b82f6;
+  color: white;
+  font-size: 7px;
+  font-weight: 600;
+  padding: 2px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.plan-card.free .plan-badge {
+  background: #10b981;
+}
+
+.plan-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+}
+
+.plan-price {
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.plan-card.free .plan-price {
+  background: linear-gradient(135deg, #10b981, #047857);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.plan-description {
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.3;
+  margin-bottom: 12px;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.plan-btn {
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.free-btn {
+  background: linear-gradient(135deg, #10b981, #047857);
+  color: white;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.free-btn:hover {
+  background: linear-gradient(135deg, #059669, #065f46);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.premium-btn {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.premium-btn:hover {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.compact-modal-footer {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn-skip {
+  background: transparent;
+  color: #6b7280;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-skip:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Mobile responsive for compact modal */
+@media (max-width: 480px) {
+  .plans-grid {
+    max-width: 320px;
+    gap: 10px;
+  }
+  
+  .plan-card {
+    padding: 12px;
+    min-height: 120px;
+  }
+  
+  .plan-description {
+    font-size: 10px;
+  }
 }
 

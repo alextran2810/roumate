@@ -1,5 +1,289 @@
 // roulette-template.js
+
+/* ------------ Global Utility Functions ------------ */
+function globalShowToast(message, type = 'info') {
+  // Simple fallback toast that works anywhere
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  toast.style.cssText = `
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: ${type === 'success' ? 'rgba(16, 185, 129, 0.9)' : type === 'error' ? 'rgba(239, 68, 68, 0.9)' : 'rgba(0, 0, 0, 0.8)'};
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    z-index: 1200;
+    animation: toastIn 0.3s ease-out;
+  `;
+  
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    if (toast.parentNode) {
+      toast.parentNode.removeChild(toast);
+    }
+  }, 3000);
+}
+
+/* ------------ Subscription & User Management System ------------ */
+class SubscriptionManager {
+  constructor() {
+    this.SUBSCRIPTION_KEY = 'roumate_subscription';
+    this.USER_PROFILE_KEY = 'roumate_user_profile';
+    this.USAGE_KEY = 'roumate_usage';
+    
+    // Subscription limits
+    this.FREE_DEMO_LIMIT = 10;
+    this.FREE_EXTENDED_LIMIT = 20; // After profile completion
+    this.AD_REWARD_SPINS = 10;
+    
+    this.initializeUser();
+  }
+  
+  initializeUser() {
+    // Initialize user profile if not exists
+    if (!localStorage.getItem(this.USER_PROFILE_KEY)) {
+      const defaultProfile = {
+        phone: '',
+        name: '',
+        email: '',
+        emailConfirmed: false,
+        profileComplete: false,
+        signupDate: new Date().toISOString()
+      };
+      localStorage.setItem(this.USER_PROFILE_KEY, JSON.stringify(defaultProfile));
+    }
+    
+    // Initialize subscription if not exists
+    if (!localStorage.getItem(this.SUBSCRIPTION_KEY)) {
+      const defaultSubscription = {
+        type: 'free',
+        startDate: new Date().toISOString(),
+        endDate: null,
+        adRewardSpins: 0
+      };
+      localStorage.setItem(this.SUBSCRIPTION_KEY, JSON.stringify(defaultSubscription));
+    }
+    
+    // Initialize usage tracking if not exists
+    if (!localStorage.getItem(this.USAGE_KEY)) {
+      const defaultUsage = {
+        totalSpins: 0,
+        dailySpins: 0,
+        lastSpinDate: null,
+        spinsThisSession: 0
+      };
+      localStorage.setItem(this.USAGE_KEY, JSON.stringify(defaultUsage));
+    }
+  }
+  
+  getUserProfile() {
+    return JSON.parse(localStorage.getItem(this.USER_PROFILE_KEY));
+  }
+  
+  updateUserProfile(updates) {
+    const profile = this.getUserProfile();
+    const updatedProfile = { ...profile, ...updates };
+    
+    // Check if profile is complete
+    updatedProfile.profileComplete = !!(
+      updatedProfile.name && 
+      updatedProfile.email && 
+      updatedProfile.emailConfirmed
+    );
+    
+    localStorage.setItem(this.USER_PROFILE_KEY, JSON.stringify(updatedProfile));
+    return updatedProfile;
+  }
+  
+  getSubscription() {
+    return JSON.parse(localStorage.getItem(this.SUBSCRIPTION_KEY));
+  }
+  
+  updateSubscription(updates) {
+    const subscription = this.getSubscription();
+    const updatedSubscription = { ...subscription, ...updates };
+    localStorage.setItem(this.SUBSCRIPTION_KEY, JSON.stringify(updatedSubscription));
+    return updatedSubscription;
+  }
+  
+  getUsage() {
+    const usage = JSON.parse(localStorage.getItem(this.USAGE_KEY));
+    
+    // Reset daily spins if it's a new day
+    const today = new Date().toDateString();
+    const lastSpinDate = usage.lastSpinDate ? new Date(usage.lastSpinDate).toDateString() : null;
+    
+    if (lastSpinDate !== today) {
+      usage.dailySpins = 0;
+      usage.spinsThisSession = 0;
+    }
+    
+    return usage;
+  }
+  
+  recordSpin() {
+    const usage = this.getUsage();
+    const now = new Date().toISOString();
+    
+    usage.totalSpins++;
+    usage.dailySpins++;
+    usage.spinsThisSession++;
+    usage.lastSpinDate = now;
+    
+    localStorage.setItem(this.USAGE_KEY, JSON.stringify(usage));
+    return usage;
+  }
+  
+  canSpin(historyLength = 0) {
+    const subscription = this.getSubscription();
+    const profile = this.getUserProfile();
+    
+    // Premium subscribers can spin unlimited
+    if (subscription.type !== 'free') {
+      const now = new Date();
+      const endDate = subscription.endDate ? new Date(subscription.endDate) : null;
+      if (endDate && now <= endDate) {
+        return { allowed: true, reason: 'premium' };
+      }
+    }
+    
+    // Check demo limit (first 10 spins) based on history length
+    if (historyLength < this.FREE_DEMO_LIMIT) {
+      return { allowed: true, reason: 'demo', remaining: this.FREE_DEMO_LIMIT - historyLength };
+    }
+    
+    // If profile not complete, stop at demo limit
+    if (!profile.profileComplete) {
+      return { allowed: false, reason: 'profile_required', limit: this.FREE_DEMO_LIMIT };
+    }
+    
+    // Profile complete, check extended limit based on history length
+    if (historyLength < this.FREE_EXTENDED_LIMIT) {
+      return { allowed: true, reason: 'extended', remaining: this.FREE_EXTENDED_LIMIT - historyLength };
+    }
+    
+    // Check ad reward spins
+    if (subscription.adRewardSpins > 0) {
+      return { allowed: true, reason: 'ad_reward', remaining: subscription.adRewardSpins };
+    }
+    
+    // No more free spins, need upgrade or ad
+    return { allowed: false, reason: 'upgrade_required', limit: this.FREE_EXTENDED_LIMIT };
+  }
+  
+  consumeAdRewardSpin() {
+    const subscription = this.getSubscription();
+    if (subscription.adRewardSpins > 0) {
+      subscription.adRewardSpins--;
+      this.updateSubscription(subscription);
+    }
+  }
+  
+  addAdRewardSpins() {
+    const subscription = this.getSubscription();
+    subscription.adRewardSpins += this.AD_REWARD_SPINS;
+    this.updateSubscription(subscription);
+  }
+  
+  upgradeToPremium(days, price) {
+    const now = new Date();
+    const endDate = new Date(now.getTime() + (days * 24 * 60 * 60 * 1000));
+    
+    this.updateSubscription({
+      type: 'premium',
+      startDate: now.toISOString(),
+      endDate: endDate.toISOString(),
+      adRewardSpins: 0
+    });
+    
+    // Here you would process the payment
+    console.log(`Upgraded to premium for ${days} days at $${price}`);
+  }
+  
+  signOut() {
+    localStorage.removeItem('user_profile');
+    localStorage.removeItem('user_subscription');
+    localStorage.removeItem('user_usage');
+    globalShowToast('Signed out successfully', 'success');
+    
+    // Redirect to sign-in page or reload
+    setTimeout(() => {
+      window.location.href = 'signin.html';
+    }, 1000);
+  }
+  
+  updateAccountDialog() {
+    try {
+      const subscription = this.getSubscription();
+      const usage = this.getUsage();
+      
+      // Calculate remaining spins
+      let remainingSpins = 0;
+      if (subscription.type === 'free') {
+        remainingSpins = Math.max(0, this.FREE_SPIN_LIMIT - usage.totalSpins + subscription.adRewardSpins);
+      } else if (subscription.type === 'premium') {
+        remainingSpins = 'Unlimited';
+      }
+      
+      // Update status and details in both panels
+      const elements = [
+        { status: 'subscriptionStatus', details: 'subscriptionDetails' },
+        { status: 'subscriptionStatusProfile', details: 'subscriptionDetailsProfile' }
+      ];
+      
+      elements.forEach(elem => {
+        const statusEl = document.getElementById(elem.status);
+        const detailsEl = document.getElementById(elem.details);
+        
+        if (statusEl) {
+          if (subscription.type === 'free') {
+            statusEl.textContent = 'Free Subscription';
+          } else if (subscription.type === 'premium') {
+            statusEl.textContent = 'Premium Subscription';
+          }
+        }
+        
+        if (detailsEl) {
+          if (subscription.type === 'free') {
+            detailsEl.textContent = `${remainingSpins} spins remaining`;
+          } else if (subscription.type === 'premium') {
+            const endDate = new Date(subscription.endDate);
+            const daysRemaining = Math.ceil((endDate - new Date()) / (24 * 60 * 60 * 1000));
+            detailsEl.textContent = `${daysRemaining} days remaining`;
+          }
+        }
+      });
+    } catch (error) {
+      console.warn('Error updating account dialog:', error);
+    }
+  }
+  
+  resetUsage() {
+    // Reset subscription to initial free state (preserves user profile if completed)
+    // Users with completed profiles will still get 20 spins instead of 10
+    // Note: We don't reset usage tracking since limits are now based on history length
+    const defaultSubscription = {
+      type: 'free',
+      startDate: new Date().toISOString(),
+      endDate: null,
+      adRewardSpins: 0
+    };
+    localStorage.setItem('user_subscription', JSON.stringify(defaultSubscription));
+    
+    globalShowToast('Game reset! You have fresh free spins available.', 'success');
+  }
+}
+
+// Global subscription manager instance
+let subscriptionManager;
+
 function initRoulette({ hasDoubleZero = true, title = "Roulette" } = {}) {
+  /* ------------ Initialize Subscription Manager ------------ */
+  subscriptionManager = new SubscriptionManager();
+  
   /* ------------ Constants & State ------------ */
   const redNumbers = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
   const totalSlots = hasDoubleZero ? 38 : 37; // 0..36 plus 37=00 if American
@@ -627,7 +911,28 @@ function flashGridCell(num) {
   }
 
   function enterNumber(num) {
+    // Check if user can spin before adding the number, based on current history length
+    const spinCheck = subscriptionManager.canSpin(history.length);
+    
+    if (!spinCheck.allowed) {
+      // Show appropriate modal based on the reason
+      if (spinCheck.reason === 'profile_required') {
+        showProfileRequiredModal(spinCheck.limit);
+      } else if (spinCheck.reason === 'upgrade_required') {
+        showUpgradeRequiredModal(spinCheck.limit);
+      }
+      return; // Don't process the number
+    }
+    
+    // Process the spin
     history.push(num);
+    
+    // Consume ad reward spin if applicable
+    if (spinCheck.reason === 'ad_reward') {
+      subscriptionManager.consumeAdRewardSpin();
+    }
+    
+    // Update UI
     document.querySelectorAll(".totalCount")?.forEach(el => el.textContent = history.length);
     appendHistoryChip(num);
     updateHistoryPlaceholder();
@@ -651,8 +956,413 @@ function flashGridCell(num) {
     }
 
     persist();
+    
+    // Update subscription status display
+    updateSubscriptionDisplay();
+    
+    // Show warnings if approaching limits
+    showSpinLimitWarnings(spinCheck);
   }
   window.enterNumber = enterNumber;
+
+  /* ------------ Subscription Modal Functions ------------ */
+  
+  function showProfileRequiredModal(spinsUsed) {
+    const modal = document.getElementById('profileRequiredModal') || createProfileRequiredModal();
+    
+    // Update content with current usage
+    const content = modal.querySelector('.profile-required-content');
+    content.innerHTML = `
+      <h3>Complete Your Profile</h3>
+      <p>You've used your ${spinsUsed} free demo spins! Complete your profile to unlock ${subscriptionManager.FREE_EXTENDED_LIMIT} total free spins.</p>
+      
+      <form id="profileForm" class="subscription-modal-form">
+        <div class="form-group">
+          <label for="userName">Full Name *</label>
+          <input type="text" id="userName" required placeholder="Enter your full name">
+        </div>
+        
+        <div class="form-group">
+          <label for="userEmail">Email Address *</label>
+          <input type="email" id="userEmail" required placeholder="Enter your email">
+        </div>
+        
+        <div class="form-group">
+          <label for="confirmEmail">Confirm Email *</label>
+          <input type="email" id="confirmEmail" required placeholder="Confirm your email">
+        </div>
+        
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" onclick="closeProfileModal()">Cancel</button>
+          <button type="submit" class="btn-primary">Complete Profile</button>
+        </div>
+      </form>
+    `;
+    
+    // Show modal with flag to prevent immediate closing from event bubbling
+    modal.dataset.justOpened = 'true';
+    setTimeout(() => {
+      modal.style.display = 'flex';
+      // Clear the flag after a brief moment
+      setTimeout(() => {
+        delete modal.dataset.justOpened;
+      }, 100);
+    }, 50);
+    
+    // Handle form submission
+    const form = document.getElementById('profileForm');
+    form.onsubmit = handleProfileFormSubmit;
+  }
+  
+  function showUpgradeRequiredModal(spinsUsed) {
+    const modal = document.getElementById('upgradeRequiredModal') || createUpgradeRequiredModal();
+    
+    // Update content with current usage  
+    const content = modal.querySelector('.upgrade-required-content');
+    content.innerHTML = `
+      <div class="compact-modal-header">
+        <h2>Choose Your Plan</h2>
+        <p>Select an option to continue:</p>
+      </div>
+      
+      <div class="plans-grid">
+        <!-- Free Option -->
+        <div class="plan-card free">
+          <div class="plan-header">
+            <h3>Watch Ad</h3>
+            <div class="plan-price">FREE</div>
+          </div>
+          <div class="plan-description">
+            Get additional spins by watching a short advertisement
+          </div>
+          <button class="plan-btn free-btn" onclick="watchAdForSpins()">
+            Watch Ad Now
+          </button>
+        </div>
+        
+        <!-- 1 Day Premium -->
+        <div class="plan-card premium popular">
+          <div class="plan-badge">Most Popular</div>
+          <div class="plan-header">
+            <h3>1 Day</h3>
+            <div class="plan-price">$1.49</div>
+          </div>
+          <div class="plan-description">
+            Unlimited spins for 24 hours. Perfect for intensive gaming sessions
+          </div>
+          <button class="plan-btn premium-btn" onclick="upgradeToPremium(1, 1.49)">
+            Get 1 Day
+          </button>
+        </div>
+        
+        <!-- 7 Days Premium -->
+        <div class="plan-card premium">
+          <div class="plan-badge">Best Value</div>
+          <div class="plan-header">
+            <h3>1 Week</h3>
+            <div class="plan-price">$5.99</div>
+          </div>
+          <div class="plan-description">
+            Unlimited spins for 7 days. Save 65% compared to daily rate
+          </div>
+          <button class="plan-btn premium-btn" onclick="upgradeToPremium(7, 5.99)">
+            Get 1 Week
+          </button>
+        </div>
+        
+        <!-- 1 Month Premium -->
+        <div class="plan-card premium">
+          <div class="plan-header">
+            <h3>1 Month</h3>
+            <div class="plan-price">$19.99</div>
+          </div>
+          <div class="plan-description">
+            Unlimited spins for 30 days. Maximum value for serious players
+          </div>
+          <button class="plan-btn premium-btn" onclick="upgradeToPremium(30, 19.99)">
+            Get 1 Month
+          </button>
+        </div>
+      </div>
+      
+      <div class="compact-modal-footer">
+        <button type="button" class="btn-skip" onclick="closeUpgradeModal()">
+          Maybe Later
+        </button>
+      </div>
+    `;
+    
+    // Show modal with flag to prevent immediate closing from event bubbling
+    modal.dataset.justOpened = 'true';
+    setTimeout(() => {
+      modal.style.display = 'flex';
+      // Clear the flag after a brief moment
+      setTimeout(() => {
+        delete modal.dataset.justOpened;
+      }, 100);
+    }, 50);
+  }
+  
+  function updateSubscriptionDisplay() {
+    const spinCheck = subscriptionManager.canSpin(history.length);
+    const usage = subscriptionManager.getUsage();
+    const subscription = subscriptionManager.getSubscription();
+    
+    // Update any subscription status displays in the UI
+    const statusElements = document.querySelectorAll('.subscription-status');
+    statusElements.forEach(element => {
+      if (subscription.type === 'premium') {
+        const endDate = new Date(subscription.endDate);
+        const now = new Date();
+        if (endDate > now) {
+          const daysLeft = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+          element.textContent = `Premium (${daysLeft} days left)`;
+          element.className = 'subscription-status premium';
+        } else {
+          element.textContent = 'Free';
+          element.className = 'subscription-status free';
+        }
+      } else {
+        if (spinCheck.allowed && spinCheck.remaining !== undefined) {
+          element.textContent = `Free (${spinCheck.remaining} spins left)`;
+        } else {
+          element.textContent = 'Free';
+        }
+        element.className = 'subscription-status free';
+      }
+    });
+  }
+  
+  function showSpinLimitWarnings(spinCheck) {
+    if (spinCheck.remaining !== undefined && spinCheck.remaining <= 3 && spinCheck.remaining > 0) {
+      // Show warning when approaching limit
+      showToast(`Warning: Only ${spinCheck.remaining} free spins remaining!`, 'warning');
+    }
+  }
+  
+  function showToast(message, type = 'info') {
+    // Create toast notification
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    toast.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: ${type === 'warning' ? '#f59e0b' : '#3b82f6'};
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      z-index: 10000;
+      animation: slideIn 0.3s ease;
+    `;
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+      toast.style.animation = 'slideOut 0.3s ease';
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+  
+  /* ------------ Modal Creation Functions ------------ */
+  
+  function createProfileRequiredModal() {
+    const modal = document.createElement('div');
+    modal.id = 'profileRequiredModal';
+    modal.className = 'subscription-modal';
+    
+    modal.innerHTML = `
+      <div class="subscription-modal-content profile-required-content">
+        <!-- Content will be updated dynamically -->
+      </div>
+    `;
+    
+    // Close modal when clicking outside, but prevent immediate closing
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal && !modal.dataset.justOpened) {
+        closeProfileModal();
+      }
+    });
+    
+    document.body.appendChild(modal);
+    return modal;
+  }
+  
+  function createUpgradeRequiredModal() {
+    const modal = document.createElement('div');
+    modal.id = 'upgradeRequiredModal';
+    modal.className = 'subscription-modal';
+    
+    modal.innerHTML = `
+      <div class="subscription-modal-content upgrade-required-content">
+        <!-- Content will be updated dynamically -->
+      </div>
+    `;
+    
+    // Close modal when clicking outside, but prevent immediate closing
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal && !modal.dataset.justOpened) {
+        closeUpgradeModal();
+      }
+    });
+    
+    document.body.appendChild(modal);
+    return modal;
+  }
+  
+  /* ------------ Event Handlers ------------ */
+  
+  function handleProfileFormSubmit(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('userName').value.trim();
+    const email = document.getElementById('userEmail').value.trim();
+    const confirmEmail = document.getElementById('confirmEmail').value.trim();
+    
+    // Validation
+    if (!name || !email || !confirmEmail) {
+      showToast('Please fill in all fields', 'warning');
+      return;
+    }
+    
+    if (email !== confirmEmail) {
+      showToast('Email addresses do not match', 'warning');
+      return;
+    }
+    
+    // Update user profile
+    subscriptionManager.updateUserProfile({
+      name: name,
+      email: email,
+      emailConfirmed: true
+    });
+    
+    // Close modal and show success
+    closeProfileModal();
+    showToast('Profile completed! You now have additional free spins.', 'success');
+    updateSubscriptionDisplay();
+  }
+  
+  function closeProfileModal() {
+    const modal = document.getElementById('profileRequiredModal');
+    if (modal) {
+      modal.style.display = 'none';
+    }
+  }
+  
+  function closeUpgradeModal() {
+    const modal = document.getElementById('upgradeRequiredModal');
+    if (modal) {
+      modal.style.display = 'none';
+    }
+  }
+  
+  function watchAdForSpins() {
+    // Simulate watching an ad
+    closeUpgradeModal();
+    showAdModal();
+  }
+  
+  function showAdModal() {
+    // Create a simple ad simulation modal
+    const adModal = document.createElement('div');
+    adModal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10001;
+    `;
+    
+    let countdown = 30;
+    adModal.innerHTML = `
+      <div style="
+        background: white;
+        border-radius: 16px;
+        padding: 32px;
+        text-align: center;
+        max-width: 400px;
+        width: 90%;
+      ">
+        <h3>Watch Advertisement</h3>
+        <p>Please wait <span id="adCountdown">${countdown}</span> seconds...</p>
+        <div style="
+          width: 100%;
+          height: 200px;
+          background: linear-gradient(45deg, #667eea, #764ba2);
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 18px;
+          margin: 20px 0;
+        ">
+          🎮 Sample Advertisement 🎮
+        </div>
+        <button id="adCloseBtn" disabled style="
+          padding: 12px 24px;
+          background: #ccc;
+          border: none;
+          border-radius: 8px;
+          cursor: not-allowed;
+        ">Close (${countdown}s)</button>
+      </div>
+    `;
+    
+    document.body.appendChild(adModal);
+    
+    const countdownEl = document.getElementById('adCountdown');
+    const closeBtn = document.getElementById('adCloseBtn');
+    
+    const timer = setInterval(() => {
+      countdown--;
+      countdownEl.textContent = countdown;
+      closeBtn.textContent = `Close (${countdown}s)`;
+      
+      if (countdown <= 0) {
+        clearInterval(timer);
+        closeBtn.textContent = 'Claim Reward';
+        closeBtn.style.background = '#10b981';
+        closeBtn.style.color = 'white';
+        closeBtn.style.cursor = 'pointer';
+        closeBtn.disabled = false;
+        
+        closeBtn.onclick = () => {
+          subscriptionManager.addAdRewardSpins();
+          adModal.remove();
+          showToast(`Great! You've earned ${subscriptionManager.AD_REWARD_SPINS} free spins!`, 'success');
+          updateSubscriptionDisplay();
+        };
+      }
+    }, 1000);
+  }
+  
+  function upgradeToPremium(days, price) {
+    // In a real app, this would integrate with payment processing
+    // For now, we'll simulate the upgrade
+    
+    const confirmMsg = `Upgrade to Premium for ${days} day${days > 1 ? 's' : ''} at $${price}?\n\n(This is a simulation - no actual payment will be processed)`;
+    
+    if (confirm(confirmMsg)) {
+      subscriptionManager.upgradeToPremium(days, price);
+      closeUpgradeModal();
+      showToast(`Upgraded to Premium for ${days} days! Enjoy unlimited spins!`, 'success');
+      updateSubscriptionDisplay();
+    }
+  }
+  
+  // Make functions globally available
+  window.closeProfileModal = closeProfileModal;
+  window.closeUpgradeModal = closeUpgradeModal;
+  window.watchAdForSpins = watchAdForSpins;
+  window.upgradeToPremium = upgradeToPremium;
 
   function rebuildHistoryLog() {
     historyLog.innerHTML = '';
@@ -685,6 +1395,13 @@ function flashGridCell(num) {
       const messageEl = document.getElementById('confirmMessage');
       const okBtn = document.getElementById('confirmOk');
       const cancelBtn = document.getElementById('confirmCancel');
+      
+      // Check if dialog elements exist, if not create a simple confirm dialog
+      if (!dialog || !titleEl || !messageEl || !okBtn || !cancelBtn) {
+        const result = confirm(`${title}\n\n${message}`);
+        resolve(result);
+        return;
+      }
       
       titleEl.textContent = title;
       messageEl.textContent = message;
@@ -721,14 +1438,23 @@ function flashGridCell(num) {
       return; 
     }
     
-    const confirmed = await showConfirm('Reset Confirmation', 'Are you sure you want to reset all history data? This action cannot be undone.');
+    const confirmed = await showConfirm('Reset Confirmation', 'Are you sure you want to reset all history data and spin usage? You will get fresh free spins to start over. This action cannot be undone.');
     if (!confirmed) return;
+    
     history.length = 0;
-    historyLog.innerHTML = '';
-    document.querySelectorAll(".totalCount").forEach(el => el.textContent = history.length);
-    slider.max = 0;
-    slider.value = 0;
-    sliderValueSpan.textContent = "0";
+    if (historyLog) historyLog.innerHTML = '';
+    
+    document.querySelectorAll(".totalCount").forEach(el => {
+      if (el) el.textContent = history.length;
+    });
+    
+    if (slider) {
+      slider.max = 0;
+      slider.value = 0;
+    }
+    
+    if (sliderValueSpan) sliderValueSpan.textContent = "0";
+    
     resetCharts();
     updateBars();
     updateGrid();
@@ -737,6 +1463,15 @@ function flashGridCell(num) {
     persist();
     updateHistoryPlaceholder();
     updateStreakTable();
+    
+    // Reset subscription usage when resetting history
+    if (subscriptionManager) {
+      subscriptionManager.resetUsage();
+      // Update subscription display in account dialog if it's open
+      if (subscriptionManager.updateAccountDialog) {
+        subscriptionManager.updateAccountDialog();
+      }
+    }
   }
   window.resetAll = resetAll;
 
@@ -1203,6 +1938,48 @@ function updateStreakTable() {
     });
 
     document.getElementById("btnSupportSettings")?.addEventListener("click", ()=> alert("Support: email support@yourdomain.com"));
+    
+    // Subscription management button handlers
+    document.getElementById("btnManageSubscription")?.addEventListener("click", () => {
+      if (subscriptionManager) {
+        subscriptionManager.showUpgradeModal();
+      }
+    });
+    
+    document.getElementById("btnManageSubscriptionProfile")?.addEventListener("click", () => {
+      if (subscriptionManager) {
+        subscriptionManager.showUpgradeModal();
+      }
+    });
+    
+    // Sign out handlers
+    document.getElementById("btnSignOut")?.addEventListener("click", () => {
+      if (subscriptionManager) {
+        subscriptionManager.signOut();
+      }
+      accountDialog?.close();
+    });
+    
+    document.getElementById("btnSignOutProfile")?.addEventListener("click", () => {
+      if (subscriptionManager) {
+        subscriptionManager.signOut();
+      }
+      accountDialog?.close();
+    });
+    
+    // Update subscription display when account dialog opens
+    if (accountDialog) {
+      const originalShowModal = accountDialog.showModal;
+      accountDialog.showModal = function() {
+        originalShowModal.call(this);
+        // Use setTimeout to ensure DOM is updated after modal is shown
+        setTimeout(() => {
+          if (subscriptionManager) {
+            subscriptionManager.updateAccountDialog();
+          }
+        }, 100);
+      };
+    }
   }
 
   function wireHelpDialog() {
