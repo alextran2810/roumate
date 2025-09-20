@@ -440,7 +440,12 @@ const gridCellByNum = new Map(); // number -> cell div
   window.exportCSV = exportCSV;
 
   /* ------------ Charts ------------ */
-  const halfChart = new Chart(halfCtx, {
+  let halfChart, colorChart, parityChart, freqChart;
+  
+  // Initialize charts only if Chart.js is available
+  try {
+    if (typeof Chart !== 'undefined') {
+      halfChart = new Chart(halfCtx, {
     type: 'line',
     data: { labels: [0], datasets: [{
       label: 'Low / High', data: [0], borderWidth: 2, pointRadius: 3,
@@ -475,7 +480,7 @@ const gridCellByNum = new Map(); // number -> cell div
     options: { responsive: true, animation: true, plugins: { legend: { display: false }, title: { display: true, text: 'Low / High' } } }
   });
 
-  const colorChart = new Chart(colorCtx, {
+      colorChart = new Chart(colorCtx, {
     type: 'line',
     data: { labels: [0], datasets: [{
       label: 'Red / Black', data: [0], borderWidth: 2, pointRadius: 3,
@@ -510,7 +515,7 @@ const gridCellByNum = new Map(); // number -> cell div
     options: { responsive: true, animation: true, plugins: { legend: { display: false }, title: { display: true, text: 'Red / Black' } } }
   });
 
-  const parityChart = new Chart(parityCtx, {
+      parityChart = new Chart(parityCtx, {
     type: 'line',
     data: { labels: [0], datasets: [{
       label: 'Even / Odd', data: [0], borderWidth: 2, pointRadius: 3,
@@ -545,7 +550,7 @@ const gridCellByNum = new Map(); // number -> cell div
     options: { responsive: true, animation: true, plugins: { legend: { display: false }, title: { display: true, text: 'Even / Odd' } } }
   });
 
-  const freqChart = new Chart(freqCtx, {
+      freqChart = new Chart(freqCtx, {
     type: 'bar',
     data: {
       labels: Array.from({ length: totalSlots }, (_, i) => labelFor(i)),
@@ -567,6 +572,12 @@ const gridCellByNum = new Map(); // number -> cell div
       }
     }
   });
+    } else {
+      console.warn('Chart.js not available. Charts will be disabled but core functionality will continue to work.');
+    }
+  } catch (error) {
+    console.warn('Failed to initialize charts:', error, 'Charts will be disabled but core functionality will continue to work.');
+  }
 
   /* ------------ Bars ------------ */
   function fillBar(container, segments) {
@@ -662,6 +673,8 @@ try {
 
   /* ------------ Charts Update ------------ */
   function updateCharts() {
+    if (!halfChart || !colorChart || !parityChart) return; // Skip if charts not initialized
+    
     const k = +slider.value;
     const slice = k ? history.slice(-k) : [];
     const halfData = [0], colorData = [0], parityData = [0];
@@ -682,6 +695,8 @@ try {
   }
 
   function resetCharts() {
+    if (!halfChart || !colorChart || !parityChart) return; // Skip if charts not initialized
+    
     [halfChart, colorChart, parityChart].forEach(chart => {
       chart.data.labels = [0];
       chart.data.datasets[0].data = [0];
@@ -691,6 +706,8 @@ try {
 
   /* ------------ Frequency & Heatmap & Combos ------------ */
   function updateFreqChart() {
+    if (!freqChart) return; // Skip if chart not initialized
+    
     const k = +slider.value;
     const slice = k ? history.slice(-k) : [];
     const counts = Array(totalSlots).fill(0);
