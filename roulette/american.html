@@ -14,6 +14,19 @@
 </head>
 <body>
 
+<!-- Introduction Page -->
+<div id="introductionPage" class="introduction-page">
+  <div class="introduction-content">
+    <img src="introduction_logo.png" alt="RouMate Introduction" class="introduction-logo">
+    <div class="introduction-footer">
+      Presented to you by Percentrade.com
+    </div>
+  </div>
+</div>
+
+<!-- Main App Content (initially hidden) -->
+<div id="mainAppContent" class="main-app-content" style="display: none;">
+
 <!-- App Header -->
 <header class="app-header">
   <button class="icon-btn" id="btnAccount" title="Account (Home)">
@@ -37,7 +50,7 @@
         Free Subscription
       </div>
       <div class="details" style="font-size: 14px; opacity: 0.8;" id="subscriptionDetails">
-        10 spins remaining
+        10 inputs remaining
       </div>
       <button id="btnManageSubscription" style="width: 100%; padding: 10px; margin-top: 12px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer;">
         Manage Subscription
@@ -66,7 +79,7 @@
         Free Subscription
       </div>
       <div class="details" style="font-size: 14px; opacity: 0.8;" id="subscriptionDetailsProfile">
-        10 spins remaining
+        10 inputs remaining
       </div>
       <button id="btnManageSubscriptionProfile" style="width: 100%; padding: 10px; margin-top: 12px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer;">
         Manage Subscription
@@ -233,7 +246,7 @@
           <thead>
             <tr>
               <th>Combination</th>
-              <th>Spins Ago</th>
+              <th>Inputs Ago</th>
             </tr>
           </thead>
           <tbody id="comboBody"></tbody>
@@ -268,7 +281,7 @@
   <div id="testDialog" class="dialog-overlay" style="display:none;">
     <div class="dialog-content">
       <h3>Run Test Simulation</h3>
-      <p>Enter how many random spins to simulate (max 5000):</p>
+      <p>Enter how many random inputs to simulate (max 5000):</p>
 
       <input id="testCount" type="number" min="1" max="5000" step="1" placeholder="e.g. 100"
              style="width:90%; padding:6px;"
@@ -335,7 +348,7 @@
     if(b && dlg && dlg.show){
       b.addEventListener('click', function(){
         if(title) title.textContent = 'Statistics';
-        if(body) body.innerHTML = '<p>This section summarizes your recent spins.</p><ul style="text-align:left"><li><b>Pairs</b>: red/black, even/odd, low/high</li><li><b>Dozens & Columns</b></li><li><b>Streaks</b>: current and longest</li><li><b>Number heatmap</b>: frequency of exact numbers</li></ul>';
+        if(body) body.innerHTML = '<p>This section summarizes your recent inputs.</p><ul style="text-align:left"><li><b>Pairs</b>: red/black, even/odd, low/high</li><li><b>Dozens & Columns</b></li><li><b>Streaks</b>: current and longest</li><li><b>Number heatmap</b>: frequency of exact numbers</li></ul>';
         dlg.show();
       });
     }
@@ -387,5 +400,39 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
+
+</div> <!-- End Main App Content -->
+
+<script>
+// Introduction page logic
+document.addEventListener('DOMContentLoaded', function() {
+  const introPage = document.getElementById('introductionPage');
+  const mainContent = document.getElementById('mainAppContent');
+  
+  // Show introduction page for 3 seconds, then transition to main app
+  setTimeout(() => {
+    introPage.style.opacity = '0';
+    setTimeout(() => {
+      introPage.style.display = 'none';
+      mainContent.style.display = 'block';
+      // Fade in main content
+      requestAnimationFrame(() => {
+        mainContent.style.opacity = '1';
+      });
+    }, 500); // Wait for fade out
+  }, 3000); // Show intro for 3 seconds
+  
+  // Allow clicking to skip intro
+  introPage.addEventListener('click', () => {
+    introPage.style.opacity = '0';
+    setTimeout(() => {
+      introPage.style.display = 'none';
+      mainContent.style.display = 'block';
+      mainContent.style.opacity = '1';
+    }, 300);
+  });
+});
+</script>
+
 </body>
 </html>

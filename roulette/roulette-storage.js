@@ -65,8 +65,8 @@ class SessionStorageAdapter extends StorageAdapter {
   GET    /api/roulette/history?table={american|european}&user={userId}
          -> { history: number[] }
 
-  POST   /api/roulette/spins
-         body: { table: "american"| "european", user: string, spins: number[] }
+  POST   /api/roulette/inputs
+         body: { table: "american"| "european", user: string, inputs: number[] }
          -> { ok: true }
 
   DELETE /api/roulette/history?table={american|european}&user={userId}
@@ -102,11 +102,11 @@ class RestStorageAdapter extends StorageAdapter {
   }
   async append(num) { return this.bulkAppend([num]); }
   async bulkAppend(nums) {
-    const url = `${this.baseUrl}/api/roulette/spins`;
+    const url = `${this.baseUrl}/api/roulette/inputs`;
     const res = await fetch(url, {
       method: "POST",
       headers: this._headers(),
-      body: JSON.stringify({ table: this.tableId, user: this.userId, spins: nums })
+      body: JSON.stringify({ table: this.tableId, user: this.userId, inputs: nums })
     });
     if (!res.ok) throw new Error(`Append failed: ${res.status}`);
     return true;

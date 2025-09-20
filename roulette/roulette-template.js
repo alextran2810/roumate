@@ -27,6 +27,39 @@ function globalShowToast(message, type = 'info') {
   }, 3000);
 }
 
+/* ------------ Modal Blur Utilities ------------ */
+function applyModalBlur() {
+  // Apply blur to main content areas, not the entire body
+  const contentSelectors = [
+    '.app-header',
+    '.top-section',
+    '.main-center'
+  ];
+  
+  contentSelectors.forEach(selector => {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.classList.add('modal-blur');
+    }
+  });
+}
+
+function removeModalBlur() {
+  // Remove blur from main content areas
+  const contentSelectors = [
+    '.app-header',
+    '.top-section', 
+    '.main-center'
+  ];
+  
+  contentSelectors.forEach(selector => {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.classList.remove('modal-blur');
+    }
+  });
+}
+
 /* ------------ Subscription & User Management System ------------ */
 class SubscriptionManager {
   constructor() {
@@ -37,7 +70,7 @@ class SubscriptionManager {
     // Subscription limits
     this.FREE_DEMO_LIMIT = 10;
     this.FREE_EXTENDED_LIMIT = 20; // After profile completion
-    this.AD_REWARD_SPINS = 10;
+    this.AD_REWARD_INPUTS = 10;
     
     this.initializeUser();
   }
@@ -62,7 +95,7 @@ class SubscriptionManager {
         type: 'free',
         startDate: new Date().toISOString(),
         endDate: null,
-        adRewardSpins: 0
+        adRewardInputs: 0
       };
       localStorage.setItem(this.SUBSCRIPTION_KEY, JSON.stringify(defaultSubscription));
     }
@@ -70,10 +103,10 @@ class SubscriptionManager {
     // Initialize usage tracking if not exists
     if (!localStorage.getItem(this.USAGE_KEY)) {
       const defaultUsage = {
-        totalSpins: 0,
-        dailySpins: 0,
-        lastSpinDate: null,
-        spinsThisSession: 0
+        totalInputs: 0,
+        dailyInputs: 0,
+        lastInputDate: null,
+        inputsThisSession: 0
       };
       localStorage.setItem(this.USAGE_KEY, JSON.stringify(defaultUsage));
     }
@@ -112,36 +145,36 @@ class SubscriptionManager {
   getUsage() {
     const usage = JSON.parse(localStorage.getItem(this.USAGE_KEY));
     
-    // Reset daily spins if it's a new day
+    // Reset daily inputs if it's a new day
     const today = new Date().toDateString();
-    const lastSpinDate = usage.lastSpinDate ? new Date(usage.lastSpinDate).toDateString() : null;
+    const lastInputDate = usage.lastInputDate ? new Date(usage.lastInputDate).toDateString() : null;
     
-    if (lastSpinDate !== today) {
-      usage.dailySpins = 0;
-      usage.spinsThisSession = 0;
+    if (lastInputDate !== today) {
+      usage.dailyInputs = 0;
+      usage.inputsThisSession = 0;
     }
     
     return usage;
   }
   
-  recordSpin() {
+  recordInput() {
     const usage = this.getUsage();
     const now = new Date().toISOString();
     
-    usage.totalSpins++;
-    usage.dailySpins++;
-    usage.spinsThisSession++;
-    usage.lastSpinDate = now;
+    usage.totalInputs++;
+    usage.dailyInputs++;
+    usage.inputsThisSession++;
+    usage.lastInputDate = now;
     
     localStorage.setItem(this.USAGE_KEY, JSON.stringify(usage));
     return usage;
   }
   
-  canSpin(historyLength = 0) {
+  canInput(historyLength = 0) {
     const subscription = this.getSubscription();
     const profile = this.getUserProfile();
     
-    // Premium subscribers can spin unlimited
+    // Premium subscribers can input unlimited
     if (subscription.type !== 'free') {
       const now = new Date();
       const endDate = subscription.endDate ? new Date(subscription.endDate) : null;
@@ -150,7 +183,7 @@ class SubscriptionManager {
       }
     }
     
-    // Check demo limit (first 10 spins) based on history length
+    // Check demo limit (first 10 inputs) based on history length
     if (historyLength < this.FREE_DEMO_LIMIT) {
       return { allowed: true, reason: 'demo', remaining: this.FREE_DEMO_LIMIT - historyLength };
     }
@@ -165,26 +198,26 @@ class SubscriptionManager {
       return { allowed: true, reason: 'extended', remaining: this.FREE_EXTENDED_LIMIT - historyLength };
     }
     
-    // Check ad reward spins
-    if (subscription.adRewardSpins > 0) {
-      return { allowed: true, reason: 'ad_reward', remaining: subscription.adRewardSpins };
+    // Check ad reward inputs
+    if (subscription.adRewardInputs > 0) {
+      return { allowed: true, reason: 'ad_reward', remaining: subscription.adRewardInputs };
     }
     
-    // No more free spins, need upgrade or ad
+    // No more free inputs, need upgrade or ad
     return { allowed: false, reason: 'upgrade_required', limit: this.FREE_EXTENDED_LIMIT };
   }
   
-  consumeAdRewardSpin() {
+  consumeAdRewardInput() {
     const subscription = this.getSubscription();
-    if (subscription.adRewardSpins > 0) {
-      subscription.adRewardSpins--;
+    if (subscription.adRewardInputs > 0) {
+      subscription.adRewardInputs--;
       this.updateSubscription(subscription);
     }
   }
   
-  addAdRewardSpins() {
+  addAdRewardInputs() {
     const subscription = this.getSubscription();
-    subscription.adRewardSpins += this.AD_REWARD_SPINS;
+    subscription.adRewardInputs += this.AD_REWARD_INPUTS;
     this.updateSubscription(subscription);
   }
   
@@ -196,7 +229,7 @@ class SubscriptionManager {
       type: 'premium',
       startDate: now.toISOString(),
       endDate: endDate.toISOString(),
-      adRewardSpins: 0
+      adRewardInputs: 0
     });
     
     // Here you would process the payment
@@ -220,12 +253,12 @@ class SubscriptionManager {
       const subscription = this.getSubscription();
       const usage = this.getUsage();
       
-      // Calculate remaining spins
-      let remainingSpins = 0;
+      // Calculate remaining inputs
+      let remainingInputs = 0;
       if (subscription.type === 'free') {
-        remainingSpins = Math.max(0, this.FREE_SPIN_LIMIT - usage.totalSpins + subscription.adRewardSpins);
+        remainingInputs = Math.max(0, this.FREE_INPUT_LIMIT - usage.totalInputs + subscription.adRewardInputs);
       } else if (subscription.type === 'premium') {
-        remainingSpins = 'Unlimited';
+        remainingInputs = 'Unlimited';
       }
       
       // Update status and details in both panels
@@ -248,7 +281,7 @@ class SubscriptionManager {
         
         if (detailsEl) {
           if (subscription.type === 'free') {
-            detailsEl.textContent = `${remainingSpins} spins remaining`;
+            detailsEl.textContent = `${remainingInputs} inputs remaining`;
           } else if (subscription.type === 'premium') {
             const endDate = new Date(subscription.endDate);
             const daysRemaining = Math.ceil((endDate - new Date()) / (24 * 60 * 60 * 1000));
@@ -263,17 +296,17 @@ class SubscriptionManager {
   
   resetUsage() {
     // Reset subscription to initial free state (preserves user profile if completed)
-    // Users with completed profiles will still get 20 spins instead of 10
+    // Users with completed profiles will still get 20 inputs instead of 10
     // Note: We don't reset usage tracking since limits are now based on history length
     const defaultSubscription = {
       type: 'free',
       startDate: new Date().toISOString(),
       endDate: null,
-      adRewardSpins: 0
+      adRewardInputs: 0
     };
     localStorage.setItem('user_subscription', JSON.stringify(defaultSubscription));
     
-    globalShowToast('Game reset! You have fresh free spins available.', 'success');
+    globalShowToast('Game reset! You have fresh free inputs available.', 'success');
   }
 }
 
@@ -730,9 +763,9 @@ function flashGridCell(num) {
           if (key === c) lastIndex = i;
         }
       });
-      const spinsAgo = lastIndex === null ? "-" : (slice.length - lastIndex);
+      const inputsAgo = lastIndex === null ? "-" : (slice.length - lastIndex);
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${c} (${comboNumbersMap[c].join(", ")})</td><td>${spinsAgo}</td>`;
+      tr.innerHTML = `<td>${c} (${comboNumbersMap[c].join(", ")})</td><td>${inputsAgo}</td>`;
       comboBody.appendChild(tr);
     });
   }
@@ -911,25 +944,25 @@ function flashGridCell(num) {
   }
 
   function enterNumber(num) {
-    // Check if user can spin before adding the number, based on current history length
-    const spinCheck = subscriptionManager.canSpin(history.length);
+    // Check if user can input before adding the number, based on current history length
+    const inputCheck = subscriptionManager.canInput(history.length);
     
-    if (!spinCheck.allowed) {
+    if (!inputCheck.allowed) {
       // Show appropriate modal based on the reason
-      if (spinCheck.reason === 'profile_required') {
-        showProfileRequiredModal(spinCheck.limit);
-      } else if (spinCheck.reason === 'upgrade_required') {
-        showUpgradeRequiredModal(spinCheck.limit);
+      if (inputCheck.reason === 'profile_required') {
+        showProfileRequiredModal(inputCheck.limit);
+      } else if (inputCheck.reason === 'upgrade_required') {
+        showUpgradeRequiredModal(inputCheck.limit);
       }
       return; // Don't process the number
     }
     
-    // Process the spin
+    // Process the input
     history.push(num);
     
-    // Consume ad reward spin if applicable
-    if (spinCheck.reason === 'ad_reward') {
-      subscriptionManager.consumeAdRewardSpin();
+    // Consume ad reward input if applicable
+    if (inputCheck.reason === 'ad_reward') {
+      subscriptionManager.consumeAdRewardInput();
     }
     
     // Update UI
@@ -961,20 +994,20 @@ function flashGridCell(num) {
     updateSubscriptionDisplay();
     
     // Show warnings if approaching limits
-    showSpinLimitWarnings(spinCheck);
+    showInputLimitWarnings(inputCheck);
   }
   window.enterNumber = enterNumber;
 
   /* ------------ Subscription Modal Functions ------------ */
   
-  function showProfileRequiredModal(spinsUsed) {
+  function showProfileRequiredModal(inputsUsed) {
     const modal = document.getElementById('profileRequiredModal') || createProfileRequiredModal();
     
     // Update content with current usage
     const content = modal.querySelector('.profile-required-content');
     content.innerHTML = `
       <h3>Complete Your Profile</h3>
-      <p>You've used your ${spinsUsed} free demo spins! Complete your profile to unlock ${subscriptionManager.FREE_EXTENDED_LIMIT} total free spins.</p>
+      <p>You've used your ${inputsUsed} free demo inputs! Complete your profile to unlock ${subscriptionManager.FREE_EXTENDED_LIMIT} total free inputs.</p>
       
       <form id="profileForm" class="subscription-modal-form">
         <div class="form-group">
@@ -1003,6 +1036,7 @@ function flashGridCell(num) {
     modal.dataset.justOpened = 'true';
     setTimeout(() => {
       modal.style.display = 'flex';
+      applyModalBlur(); // Apply blur effect
       // Clear the flag after a brief moment
       setTimeout(() => {
         delete modal.dataset.justOpened;
@@ -1014,7 +1048,7 @@ function flashGridCell(num) {
     form.onsubmit = handleProfileFormSubmit;
   }
   
-  function showUpgradeRequiredModal(spinsUsed) {
+  function showUpgradeRequiredModal(inputsUsed) {
     const modal = document.getElementById('upgradeRequiredModal') || createUpgradeRequiredModal();
     
     // Update content with current usage  
@@ -1033,9 +1067,9 @@ function flashGridCell(num) {
             <div class="plan-price">FREE</div>
           </div>
           <div class="plan-description">
-            Get additional spins by watching a short advertisement
+            Get additional inputs by watching a short advertisement
           </div>
-          <button class="plan-btn free-btn" onclick="watchAdForSpins()">
+          <button class="plan-btn free-btn" onclick="watchAdForInputs()">
             Watch Ad Now
           </button>
         </div>
@@ -1048,7 +1082,7 @@ function flashGridCell(num) {
             <div class="plan-price">$1.49</div>
           </div>
           <div class="plan-description">
-            Unlimited spins for 24 hours. Perfect for intensive gaming sessions
+            Unlimited inputs for 24 hours. Perfect for intensive gaming sessions
           </div>
           <button class="plan-btn premium-btn" onclick="upgradeToPremium(1, 1.49)">
             Get 1 Day
@@ -1063,7 +1097,7 @@ function flashGridCell(num) {
             <div class="plan-price">$5.99</div>
           </div>
           <div class="plan-description">
-            Unlimited spins for 7 days. Save 65% compared to daily rate
+            Unlimited inputs for 7 days. Save 65% compared to daily rate
           </div>
           <button class="plan-btn premium-btn" onclick="upgradeToPremium(7, 5.99)">
             Get 1 Week
@@ -1077,7 +1111,7 @@ function flashGridCell(num) {
             <div class="plan-price">$19.99</div>
           </div>
           <div class="plan-description">
-            Unlimited spins for 30 days. Maximum value for serious players
+            Unlimited inputs for 30 days. Maximum value for serious players
           </div>
           <button class="plan-btn premium-btn" onclick="upgradeToPremium(30, 19.99)">
             Get 1 Month
@@ -1096,6 +1130,7 @@ function flashGridCell(num) {
     modal.dataset.justOpened = 'true';
     setTimeout(() => {
       modal.style.display = 'flex';
+      applyModalBlur(); // Apply blur effect
       // Clear the flag after a brief moment
       setTimeout(() => {
         delete modal.dataset.justOpened;
@@ -1104,7 +1139,7 @@ function flashGridCell(num) {
   }
   
   function updateSubscriptionDisplay() {
-    const spinCheck = subscriptionManager.canSpin(history.length);
+    const inputCheck = subscriptionManager.canInput(history.length);
     const usage = subscriptionManager.getUsage();
     const subscription = subscriptionManager.getSubscription();
     
@@ -1123,8 +1158,8 @@ function flashGridCell(num) {
           element.className = 'subscription-status free';
         }
       } else {
-        if (spinCheck.allowed && spinCheck.remaining !== undefined) {
-          element.textContent = `Free (${spinCheck.remaining} spins left)`;
+        if (inputCheck.allowed && inputCheck.remaining !== undefined) {
+          element.textContent = `Free (${inputCheck.remaining} inputs left)`;
         } else {
           element.textContent = 'Free';
         }
@@ -1133,10 +1168,10 @@ function flashGridCell(num) {
     });
   }
   
-  function showSpinLimitWarnings(spinCheck) {
-    if (spinCheck.remaining !== undefined && spinCheck.remaining <= 3 && spinCheck.remaining > 0) {
+  function showInputLimitWarnings(inputCheck) {
+    if (inputCheck.remaining !== undefined && inputCheck.remaining <= 3 && inputCheck.remaining > 0) {
       // Show warning when approaching limit
-      showToast(`Warning: Only ${spinCheck.remaining} free spins remaining!`, 'warning');
+      showToast(`Warning: Only ${inputCheck.remaining} free inputs remaining!`, 'warning');
     }
   }
   
@@ -1240,7 +1275,7 @@ function flashGridCell(num) {
     
     // Close modal and show success
     closeProfileModal();
-    showToast('Profile completed! You now have additional free spins.', 'success');
+    showToast('Profile completed! You now have additional free inputs.', 'success');
     updateSubscriptionDisplay();
   }
   
@@ -1248,6 +1283,7 @@ function flashGridCell(num) {
     const modal = document.getElementById('profileRequiredModal');
     if (modal) {
       modal.style.display = 'none';
+      removeModalBlur(); // Remove blur effect
     }
   }
   
@@ -1255,10 +1291,11 @@ function flashGridCell(num) {
     const modal = document.getElementById('upgradeRequiredModal');
     if (modal) {
       modal.style.display = 'none';
+      removeModalBlur(); // Remove blur effect
     }
   }
   
-  function watchAdForSpins() {
+  function watchAdForInputs() {
     // Simulate watching an ad
     closeUpgradeModal();
     showAdModal();
@@ -1279,6 +1316,8 @@ function flashGridCell(num) {
       justify-content: center;
       z-index: 10001;
     `;
+    
+    applyModalBlur(); // Apply blur effect
     
     let countdown = 30;
     adModal.innerHTML = `
@@ -1335,9 +1374,10 @@ function flashGridCell(num) {
         closeBtn.disabled = false;
         
         closeBtn.onclick = () => {
-          subscriptionManager.addAdRewardSpins();
+          subscriptionManager.addAdRewardInputs();
           adModal.remove();
-          showToast(`Great! You've earned ${subscriptionManager.AD_REWARD_SPINS} free spins!`, 'success');
+          removeModalBlur(); // Remove blur effect
+          showToast(`Great! You've earned ${subscriptionManager.AD_REWARD_INPUTS} free inputs!`, 'success');
           updateSubscriptionDisplay();
         };
       }
@@ -1353,7 +1393,7 @@ function flashGridCell(num) {
     if (confirm(confirmMsg)) {
       subscriptionManager.upgradeToPremium(days, price);
       closeUpgradeModal();
-      showToast(`Upgraded to Premium for ${days} days! Enjoy unlimited spins!`, 'success');
+      showToast(`Upgraded to Premium for ${days} days! Enjoy unlimited inputs!`, 'success');
       updateSubscriptionDisplay();
     }
   }
@@ -1361,8 +1401,185 @@ function flashGridCell(num) {
   // Make functions globally available
   window.closeProfileModal = closeProfileModal;
   window.closeUpgradeModal = closeUpgradeModal;
-  window.watchAdForSpins = watchAdForSpins;
+  window.watchAdForInputs = watchAdForInputs;
   window.upgradeToPremium = upgradeToPremium;
+  window.showManageSubscriptionModal = showManageSubscriptionModal;
+  window.closeManageSubscriptionModal = closeManageSubscriptionModal;
+  window.cancelSubscription = cancelSubscription;
+  window.renewSubscription = renewSubscription;
+
+  /* ------------ Manage Subscription Modal Functions ------------ */
+  
+  function showManageSubscriptionModal() {
+    const modal = document.getElementById('manageSubscriptionModal') || createManageSubscriptionModal();
+    updateManageSubscriptionContent(modal);
+    
+    // Show modal with flag to prevent immediate closing from event bubbling
+    modal.dataset.justOpened = 'true';
+    setTimeout(() => {
+      modal.style.display = 'flex';
+      applyModalBlur(); // Apply blur effect
+      // Clear the flag after a brief moment
+      setTimeout(() => {
+        delete modal.dataset.justOpened;
+      }, 100);
+    }, 50);
+  }
+  
+  function updateManageSubscriptionContent(modal) {
+    const subscription = subscriptionManager.getSubscription();
+    const profile = subscriptionManager.getUserProfile();
+    const content = modal.querySelector('.manage-subscription-content');
+    
+    const isPremium = subscription.type === 'premium';
+    const isActive = isPremium && subscription.endDate && new Date(subscription.endDate) > new Date();
+    
+    let statusInfo = '';
+    let actionButtons = '';
+    
+    if (isActive) {
+      const endDate = new Date(subscription.endDate);
+      const daysLeft = Math.ceil((endDate - new Date()) / (1000 * 60 * 60 * 24));
+      
+      statusInfo = `
+        <div class="subscription-status active">
+          <div class="status-icon">✅</div>
+          <div class="status-details">
+            <h3>Premium Active</h3>
+            <p>Your premium subscription is active</p>
+            <p class="expiry-date">Expires: ${endDate.toLocaleDateString()}</p>
+            <p class="days-left">${daysLeft} days remaining</p>
+          </div>
+        </div>
+      `;
+      
+      actionButtons = `
+        <div class="action-buttons">
+          <button class="btn-extend" onclick="showUpgradeRequiredModal(0)">
+            Extend Subscription
+          </button>
+          <button class="btn-cancel" onclick="cancelSubscription()">
+            Cancel Subscription
+          </button>
+        </div>
+      `;
+    } else {
+      statusInfo = `
+        <div class="subscription-status inactive">
+          <div class="status-icon">⭕</div>
+          <div class="status-details">
+            <h3>Free Plan</h3>
+            <p>You're currently on the free plan</p>
+            <p class="limit-info">Limited to ${profile.emailConfirmed ? subscriptionManager.FREE_EXTENDED_LIMIT : subscriptionManager.FREE_DEMO_LIMIT} inputs per session</p>
+          </div>
+        </div>
+      `;
+      
+      actionButtons = `
+        <div class="action-buttons">
+          <button class="btn-upgrade" onclick="showUpgradeRequiredModal(0)">
+            Upgrade to Premium
+          </button>
+        </div>
+      `;
+    }
+    
+    content.innerHTML = `
+      <div class="manage-subscription-header">
+        <h2>Manage Subscription</h2>
+        <button class="close-btn" onclick="closeManageSubscriptionModal()">✕</button>
+      </div>
+      
+      ${statusInfo}
+      
+      <div class="account-info">
+        <h4>Account Information</h4>
+        <div class="info-row">
+          <span class="label">Name:</span>
+          <span class="value">${profile.name || 'Not provided'}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Email:</span>
+          <span class="value">${profile.email || 'Not provided'}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">Profile Status:</span>
+          <span class="value ${profile.emailConfirmed ? 'completed' : 'incomplete'}">
+            ${profile.emailConfirmed ? 'Completed' : 'Incomplete'}
+          </span>
+        </div>
+      </div>
+      
+      <div class="subscription-history">
+        <h4>Subscription History</h4>
+        <div class="history-item">
+          <span class="date">${new Date(subscription.startDate).toLocaleDateString()}</span>
+          <span class="type">${subscription.type === 'premium' ? 'Premium' : 'Free'} Plan</span>
+          <span class="status">${isActive ? 'Active' : 'Expired'}</span>
+        </div>
+      </div>
+      
+      ${actionButtons}
+      
+      <div class="subscription-notes">
+        <p><strong>Note:</strong> Premium subscriptions include unlimited inputs and no advertisements.</p>
+        <p>Need help? Contact support at support@yourdomain.com</p>
+      </div>
+    `;
+  }
+  
+  function createManageSubscriptionModal() {
+    const modal = document.createElement('div');
+    modal.id = 'manageSubscriptionModal';
+    modal.className = 'subscription-modal';
+    
+    modal.innerHTML = `
+      <div class="subscription-modal-content manage-subscription-content">
+        <!-- Content will be updated dynamically -->
+      </div>
+    `;
+    
+    // Close modal when clicking outside, but prevent immediate closing
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal && !modal.dataset.justOpened) {
+        closeManageSubscriptionModal();
+      }
+    });
+    
+    document.body.appendChild(modal);
+    return modal;
+  }
+  
+  function closeManageSubscriptionModal() {
+    const modal = document.getElementById('manageSubscriptionModal');
+    if (modal) {
+      modal.style.display = 'none';
+      removeModalBlur(); // Remove blur effect
+    }
+  }
+  
+  function cancelSubscription() {
+    if (confirm('Are you sure you want to cancel your premium subscription? You will lose access to unlimited inputs.')) {
+      // Reset to free subscription
+      const defaultSubscription = {
+        type: 'free',
+        startDate: new Date().toISOString(),
+        endDate: null,
+        adRewardInputs: 0
+      };
+      
+      localStorage.setItem('user_subscription', JSON.stringify(defaultSubscription));
+      
+      showToast('Subscription cancelled. You are now on the free plan.', 'info');
+      closeManageSubscriptionModal();
+      updateSubscriptionDisplay();
+    }
+  }
+  
+  function renewSubscription() {
+    closeManageSubscriptionModal();
+    showUpgradeRequiredModal(0);
+  }
 
   function rebuildHistoryLog() {
     historyLog.innerHTML = '';
@@ -1438,7 +1655,7 @@ function flashGridCell(num) {
       return; 
     }
     
-    const confirmed = await showConfirm('Reset Confirmation', 'Are you sure you want to reset all history data and spin usage? You will get fresh free spins to start over. This action cannot be undone.');
+    const confirmed = await showConfirm('Reset Confirmation', 'Are you sure you want to reset all history data and input usage? You will get fresh free inputs to start over. This action cannot be undone.');
     if (!confirmed) return;
     
     history.length = 0;
@@ -1498,9 +1715,11 @@ function flashGridCell(num) {
   /* ------------ Test Simulation ------------ */
   function openTestDialog() {
     document.getElementById("testDialog").style.display = "flex";
+    applyModalBlur(); // Apply blur effect
   }
   function closeTestDialog() {
     document.getElementById("testDialog").style.display = "none";
+    removeModalBlur(); // Remove blur effect
   }
   window.openTestDialog = openTestDialog;
   window.closeTestDialog = closeTestDialog;
@@ -1533,7 +1752,7 @@ function flashGridCell(num) {
     content.className = "dialog-content";
     content.innerHTML = `
       <h3>Test Complete</h3>
-      <p>Successfully simulated <strong>${count}</strong> spins.</p>
+      <p>Successfully simulated <strong>${count}</strong> inputs.</p>
       <div style="margin-top:10px; text-align:right;">
         <button onclick="this.closest('.dialog-overlay').remove()">OK</button>
       </div>`;
@@ -1545,7 +1764,7 @@ function flashGridCell(num) {
     const input = document.getElementById("testCount").value.trim();
     const x = parseInt(input, 10);
     if (isNaN(x) || x <= 0) { alert("Please enter a valid positive number."); return; }
-    if (x > 5000) { alert("Maximum limit is 5000 spins. Please enter a smaller number."); return; }
+    if (x > 5000) { alert("Maximum limit is 5000 inputs. Please enter a smaller number."); return; }
 
     const speed = document.getElementById("speedSelect").value;
     
@@ -1579,20 +1798,20 @@ function flashGridCell(num) {
     
     // More aggressive speed scaling - reduce delays significantly for large numbers
     if (x >= 100) {
-      // Calculate speed factor based on spin count
+      // Calculate speed factor based on input count
       let speedFactor = 1;
       
       if (x >= 500) {
-        speedFactor = Math.floor(x / 500) * 3; // 3x faster for every 500 spins
+        speedFactor = Math.floor(x / 500) * 3; // 3x faster for every 500 inputs
       } else if (x >= 100) {
-        speedFactor = 1 + Math.floor((x - 100) / 100) * 0.5; // 0.5x faster for every 100 spins under 500
+        speedFactor = 1 + Math.floor((x - 100) / 100) * 0.5; // 0.5x faster for every 100 inputs under 500
       }
       
       baseDelays.fast = Math.max(1, Math.round(baseDelays.fast / speedFactor));
       baseDelays.regular = Math.max(2, Math.round(baseDelays.regular / speedFactor));
       baseDelays.slow = Math.max(5, Math.round(baseDelays.slow / speedFactor));
       
-      console.log(`Speed calculation for ${x} spins:`, {
+      console.log(`Speed calculation for ${x} inputs:`, {
         speedFactor,
         delays: baseDelays,
         selectedSpeed: speed,
@@ -1751,7 +1970,7 @@ function longestBySegment(slice, groupFn, allKeys) {
   return max;
 }
 
-// current streak (ending at the last spin) for each segment
+// current streak (ending at the last input) for each segment
 function currentBySegment(slice, groupFn, allKeys) {
   const out = Object.fromEntries(allKeys.map(k => [k, 0]));
   if (slice.length === 0) return out;
@@ -1927,7 +2146,10 @@ function updateStreakTable() {
         themeSelector.value = currentTheme;
       }
       
-      settingsDialog && settingsDialog.showModal();
+      if (settingsDialog) {
+        settingsDialog.showModal();
+        applyModalBlur(); // Apply blur effect
+      }
     });
 
     // Theme selector handler
@@ -1942,13 +2164,13 @@ function updateStreakTable() {
     // Subscription management button handlers
     document.getElementById("btnManageSubscription")?.addEventListener("click", () => {
       if (subscriptionManager) {
-        subscriptionManager.showUpgradeModal();
+        showManageSubscriptionModal();
       }
     });
     
     document.getElementById("btnManageSubscriptionProfile")?.addEventListener("click", () => {
       if (subscriptionManager) {
-        subscriptionManager.showUpgradeModal();
+        showManageSubscriptionModal();
       }
     });
     
@@ -1972,12 +2194,28 @@ function updateStreakTable() {
       const originalShowModal = accountDialog.showModal;
       accountDialog.showModal = function() {
         originalShowModal.call(this);
+        applyModalBlur(); // Apply blur effect
         // Use setTimeout to ensure DOM is updated after modal is shown
         setTimeout(() => {
           if (subscriptionManager) {
             subscriptionManager.updateAccountDialog();
           }
         }, 100);
+      };
+      
+      const originalClose = accountDialog.close;
+      accountDialog.close = function() {
+        originalClose.call(this);
+        removeModalBlur(); // Remove blur effect
+      };
+    }
+    
+    // Add blur effect handlers for settings dialog
+    if (settingsDialog) {
+      const originalClose = settingsDialog.close;
+      settingsDialog.close = function() {
+        originalClose.call(this);
+        removeModalBlur(); // Remove blur effect
       };
     }
   }
@@ -1987,9 +2225,9 @@ function updateStreakTable() {
     const helpTitle = document.getElementById("helpTitle");
     const helpBody = document.getElementById("helpBody");
     const copy = {
-      statistics: "<p><strong>Statistics Overview:</strong> This section displays a comprehensive analysis of your roulette spins including win/loss patterns for basic bets (red/black, even/odd, low/high numbers 1-18/19-36), performance across dozens (1-12, 13-24, 25-36) and columns, current winning/losing streaks, and a visual heatmap showing which numbers have appeared most frequently.</p><p><strong>Statistical Bars & Percentages:</strong> The colored bars show the distribution of your spins across different categories. Each bar displays percentages indicating how often each outcome occurred (Columns 1-3, Dozens 1st-3rd, Low/High, Red/Black, Even/Odd). The percentages help you see if results are close to expected probabilities or show significant deviations.</p><p><strong>Data Range Control:</strong> The slider at the top allows you to focus your analysis on recent spins vs. your entire session. The display shows 'last X out of Y total' where X is the number of recent spins being analyzed (controlled by the slider) and Y is your total session spins. Move the slider left to analyze fewer recent spins (good for spotting current trends), or right to include more of your session history (better for overall patterns).</p>", slider: "<p><strong>Data Range Slider:</strong> Use this slider to focus your statistical analysis on a specific range of recent spins. Move the slider left to analyze only your most recent spins (useful for spotting recent trends), or move it right to include your entire session history. The number shows how many of your total spins are being analyzed.</p>",
-      heatmap: "<p><strong>Number Heatmap:</strong> This color-coded grid shows the frequency of each number in your selected spin range. It’s Darker/warmer colors indicate numbers that have appeared more often ('hot' numbers), while lighter/cooler colors show numbers that have appeared less frequently ('cold' numbers). Remember: past results don't predict future outcomes in roulette.</p><p><strong>Frequency Chart:</strong> The bar chart below the heatmap provides an alternative visualization of the same data, showing each number's frequency as vertical bars. Higher bars indicate numbers that have appeared more often.</p><p><strong>Combination Analysis:</strong> This table tracks complex number patterns by showing when specific three-way combinations last occurred. Each combination represents numbers that are simultaneously Low/High, Red/Black, AND Even/Odd (e.g., 'Low-Red-Even' for numbers like 2, 12, 18). The 'Spins Ago' column shows how many spins have passed since each combination last appeared, helping you spot patterns in recent number characteristics.</p>",
-      combos: "<p><strong>Combination Analysis:</strong> This table shows how often different bet combinations have won together in your spins. For example, it tracks when a number was both Red AND Even, or Low AND Odd, etc. This helps you see patterns across multiple bet types and understand how different betting strategies would have performed with your actual spin results.</p>",
+      statistics: "<p><strong>Statistics Overview:</strong> This section displays a comprehensive analysis of your roulette inputs including win/loss patterns for basic bets (red/black, even/odd, low/high numbers 1-18/19-36), performance across dozens (1-12, 13-24, 25-36) and columns, current winning/losing streaks, and a visual heatmap showing which numbers have appeared most frequently.</p><p><strong>Statistical Bars & Percentages:</strong> The colored bars show the distribution of your inputs across different categories. Each bar displays percentages indicating how often each outcome occurred (Columns 1-3, Dozens 1st-3rd, Low/High, Red/Black, Even/Odd). The percentages help you see if results are close to expected probabilities or show significant deviations.</p><p><strong>Data Range Control:</strong> The slider at the top allows you to focus your analysis on recent inputs vs. your entire session. The display shows 'last X out of Y total' where X is the number of recent inputs being analyzed (controlled by the slider) and Y is your total session inputs. Move the slider left to analyze fewer recent inputs (good for spotting current trends), or right to include more of your session history (better for overall patterns).</p>", slider: "<p><strong>Data Range Slider:</strong> Use this slider to focus your statistical analysis on a specific range of recent inputs. Move the slider left to analyze only your most recent inputs (useful for spotting recent trends), or move it right to include your entire session history. The number shows how many of your total inputs are being analyzed.</p>",
+      heatmap: "<p><strong>Number Heatmap:</strong> This color-coded grid shows the frequency of each number in your selected input range. It’s Darker/warmer colors indicate numbers that have appeared more often ('hot' numbers), while lighter/cooler colors show numbers that have appeared less frequently ('cold' numbers). Remember: past results don't predict future outcomes in roulette.</p><p><strong>Frequency Chart:</strong> The bar chart below the heatmap provides an alternative visualization of the same data, showing each number's frequency as vertical bars. Higher bars indicate numbers that have appeared more often.</p><p><strong>Combination Analysis:</strong> This table tracks complex number patterns by showing when specific three-way combinations last occurred. Each combination represents numbers that are simultaneously Low/High, Red/Black, AND Even/Odd (e.g., 'Low-Red-Even' for numbers like 2, 12, 18). The 'Inputs Ago' column shows how many inputs have passed since each combination last appeared, helping you spot patterns in recent number characteristics.</p>",
+      combos: "<p><strong>Combination Analysis:</strong> This table shows how often different bet combinations have won together in your inputs. For example, it tracks when a number was both Red AND Even, or Low AND Odd, etc. This helps you see patterns across multiple bet types and understand how different betting strategies would have performed with your actual input results.</p>",
       streaks:"<p><strong>Streak Tracking:</strong> This section monitors consecutive wins for different bet types. It shows your current active streaks (how many times in a row red, even, low, etc. have won) as well as your longest streaks achieved during this session. Useful for understanding recent momentum and historical patterns in your game.</p>"
     };
     document.addEventListener("click", (e) => {
@@ -2005,8 +2243,20 @@ function updateStreakTable() {
       };
       helpTitle.textContent = titles[key] || "Help";
       helpBody.innerHTML = copy[key] || "<p>No help available.</p>";
-      if (helpDialog && !helpDialog.open) helpDialog.showModal();
+      if (helpDialog && !helpDialog.open) {
+        helpDialog.showModal();
+        applyModalBlur(); // Apply blur effect
+      }
     });
+    
+    // Add blur effect handlers for help dialog
+    if (helpDialog) {
+      const originalClose = helpDialog.close;
+      helpDialog.close = function() {
+        originalClose.call(this);
+        removeModalBlur(); // Remove blur effect
+      };
+    }
   }
 
   function wireBoardPopup() {
@@ -2014,8 +2264,21 @@ function updateStreakTable() {
     const boardImg = document.getElementById("boardImg");
     function openBoard() {
       if (boardImg) boardImg.src = "roulette_board.jpg";
-      if (boardDialog && !boardDialog.open) boardDialog.showModal();
+      if (boardDialog && !boardDialog.open) {
+        boardDialog.showModal();
+        applyModalBlur(); // Apply blur effect
+      }
     }
+    
+    // Add blur effect handlers for board dialog
+    if (boardDialog) {
+      const originalClose = boardDialog.close;
+      boardDialog.close = function() {
+        originalClose.call(this);
+        removeModalBlur(); // Remove blur effect
+      };
+    }
+    
     // Updated to use the correct IDs from HTML
     const containers = ["#colBar", "#dozenBar", "[data-board-popup]"];
     containers.forEach(sel => {
@@ -2438,7 +2701,7 @@ function updateStreakTable() {
 
     // History sheet
     (function addHistory(){
-      const ws = wb.addWorksheet(uniqueSheetName(wb, "Spins"));
+      const ws = wb.addWorksheet(uniqueSheetName(wb, "Inputs"));
       try {
         const isAmerican = /american\.html$/i.test(location.pathname);
         const key = isAmerican ? "american_roulette_v1" : "european_roulette_v1";
